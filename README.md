@@ -1,2 +1,2 @@
 # better-launcher
-Minecraft better launcher in electron
+Better Minecraft Launcher in electron
