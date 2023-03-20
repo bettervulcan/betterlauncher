@@ -1,2 +1,2 @@
-# better-launcher
-Better Minecraft Launcher in electron
+# Better Launcher
+Better Minecraft Launcher in NodeJS
