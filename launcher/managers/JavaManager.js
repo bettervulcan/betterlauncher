@@ -19,6 +19,17 @@ const getJavaExec = () => {
         resolve(stdout, stderr);
       });
     } else if (os.platform() == "linux") {
+      process.exec("which java", (err, stdout, stderr) => {
+        if (err) {
+          console.log(err);
+          return reject(err);
+        }
+        if (stdout.includes("not found")) return reject("no java");
+        if (stdout.includes("\n")) {
+          return resolve(stdout.split("\n")[0]);
+        }
+        resolve(stdout, stderr);
+      });
     } else {
     }
   });

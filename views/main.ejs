@@ -1,17 +1,99 @@
-<!-- 
-  <div class="content"><%- include('screens/welcome.ejs') %></div> -->
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../assets/stylesheets/style.css" />
+    <script src="../assets/javascripts/jquery.js"></script>
   </head>
-  <style>
-    * {
-      background-color: #343434;
-    }
-  </style>
   <body>
     <%- include('modules/titlebar.ejs') %>
+    <div
+      id="app"
+      class="h-screen w-screen bg-[#191825] overflow-hidden select-none"
+    >
+      <div class="flex items-center h-screen w-screen justify-center flex-col">
+        <div
+          class="top w-[80%] h-[15vh] flex justify-center"
+          style="margin-top: 48px"
+        >
+          <ol
+            class="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400 sm:text-base"
+          >
+            <li
+              class="flex md:w-full items-center text-[#865DFF] sm:after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-10 dark:after:border-gray-700"
+            >
+              <span
+                class="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500"
+              >
+                Zaloguj <span class="hidden sm:inline-flex sm:ml-2">się</span>
+              </span>
+            </li>
+            <li
+              class="flex md:w-full items-center after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-10 dark:after:border-gray-700"
+            >
+              <span
+                class="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500"
+              >
+                Wybierz
+                <span class="hidden sm:inline-flex sm:mx-2">wersję </span>
+                gry
+              </span>
+            </li>
+            <li class="flex items-center">
+              Uruchamianie
+              <span class="hidden sm:inline-flex sm:ml-2">gry</span>
+            </li>
+          </ol>
+        </div>
+        <%- include('screens/welcome.ejs') %> <%-
+        include('screens/versions.ejs') %> <%- include('screens/run.ejs') %>
+      </div>
+    </div>
+    <script src="../assets/javascripts/flowbite.js"></script>
+    <script src="../assets/javascripts/renderer.js"></script>
+
+    <script>
+      // The currently shown view container.
+      let currentView;
+
+      /**
+       * Switch launcher views.
+       *
+       * @param {string} current The ID of the current view container.
+       * @param {*} next The ID of the next view container.
+       * @param {*} currentFadeTime Optional. The fade out time for the current view.
+       * @param {*} nextFadeTime Optional. The fade in time for the next view.
+       * @param {*} onCurrentFade Optional. Callback function to execute when the current
+       * view fades out.
+       * @param {*} onNextFade Optional. Callback function to execute when the next view
+       * fades in.
+       */
+      function switchView(
+        current,
+        next,
+        currentFadeTime = 500,
+        nextFadeTime = 500,
+        onCurrentFade = () => {},
+        onNextFade = () => {}
+      ) {
+        currentView = next;
+        $(`${current}`).fadeOut(currentFadeTime, async () => {
+          await onCurrentFade();
+          $(`${next}`).fadeIn(nextFadeTime, async () => {
+            await onNextFade();
+          });
+        });
+      }
+
+      /**
+       * Get the currently shown view container.
+       *
+       * @returns {string} The currently shown view container.
+       */
+      function getCurrentView() {
+        return currentView;
+      }
+    </script>
   </body>
 </html>

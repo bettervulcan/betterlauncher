@@ -36,9 +36,7 @@ const scrapSite = () => {
           });
         resolve(versions);
       })
-      .catch((err) => {
-        reject(err);
-      });
+      .catch(reject);
   });
 };
 
@@ -112,7 +110,7 @@ const downloadInstaller = (optifineObject) => {
               )
             );
             // TODO: RUN IT BY JAVA MANAGER
-            return resolve();
+            return resolve("TODO: RUN IT BY JAVA MANAGER");
           })
           .catch((err) => {
             return reject(err);
@@ -125,10 +123,10 @@ const downloadInstaller = (optifineObject) => {
 };
 
 // ! tests
-// (async () => {
-//   const versions = await scrapSite();
-//   console.log(versions["1.19.3"]["I2_pre5"]);
-//   console.log(await downloadInstaller(versions["1.19.3"]["I2_pre5"]));
-// })();
+(async () => {
+  const versions = await scrapSite();
+  console.log(versions["1.19.3"]["I3"]);
+  console.log(await downloadInstaller(versions["1.19.3"]["I3"]));
+})();
 
 module.exports = { scrapSite, downloadInstaller };

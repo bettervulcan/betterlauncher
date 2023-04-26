@@ -36,9 +36,7 @@ const getAvailableVersions = (type) => {
         });
         resolve(versionList);
       })
-      .catch((err) => {
-        reject(err);
-      });
+      .catch(reject);
   });
 };
 
@@ -95,25 +93,78 @@ const downloadVersionJson = (versionObject) => {
         );
         resolve();
       })
-      .catch((err) => {
-        reject(err);
-      });
+      .catch(reject);
+  });
+};
+
+const updateConfig = (lastVersions) => {
+  return new Promise(async (resolve, reject) => {
+    await ConfigManager.setVariable("lastVersions", lastVersions).catch(reject);
+    resolve(await ConfigManager.saveConfig().catch(reject));
+  });
+};
+
+const addLastVersion = (version) => {
+  return new Promise(async (resolve, reject) => {
+    const lastVersions = await getLastVersions();
+    const index = lastVersions.indexOf(version);
+    if (index !== -1) {
+      lastVersions.splice(index, 1);
+      lastVersions.unshift(version);
+      await updateConfig(lastVersions);
+    } else {
+      if (lastVersions.length >= 3) {
+        lastVersions.pop();
+      }
+      lastVersions.unshift(version);
+      await updateConfig(lastVersions);
+    }
+    resolve(lastVersions);
+  });
+};
+
+const getLastVersions = () => {
+  return new Promise(async (resolve, reject) => {
+    const versionsList = await ConfigManager.getVariable("lastVersions").catch(
+      reject
+    );
+    if (versionsList) return resolve(versionsList);
+    resolve([]);
+  });
+};
+
+const getVersionNumberByName = (name) => {
+  return new Promise(async (resolve, reject) => {
+    const versionJson = JSON.parse(
+      await fs.readFileSync(
+        `${await ConfigManager.getVariable(
+          "rootPath"
+        )}\\versions\\${name}\\${name}.json`
+      )
+    );
+    if (versionJson.inheritsFrom) return resolve(versionJson.inheritsFrom);
+    // TODO forge number version from json
+    if (versionJson.id) return resolve(versionJson.id);
   });
 };
 
 // ! tests
-// (async () => {
-//   console.log(await getInstalledVersions());
-//       console.log(await getAvailableVersions("snapshot"));
-//       console.log(await getAvailableVersions("old_alpha"));
-//   const versions = await getAvailableVersions("release");
-//   console.log(versions);
-//   console.log(versions["1.8.9"]);
-//   console.log(await downloadVersionJson(versions["1.8.9"]));
-// })();
+(async () => {
+  // console.log(await getVersionNumberByName("fabric-loader-0.14.17-1.19.3"));
+  //   console.log(await getInstalledVersions());
+  //       console.log(await getAvailableVersions("snapshot"));
+  //       console.log(await getAvailableVersions("old_alpha"));
+  //   const versions = await getAvailableVersions("release");
+  //   console.log(versions);
+  //   console.log(versions["1.8.9"]);
+  //   console.log(await downloadVersionJson(versions["1.8.9"]));
+})();
 
 module.exports = {
   getInstalledVersions,
   getAvailableVersions,
   downloadVersionJson,
+  addLastVersion,
+  getLastVersions,
+  getVersionNumberByName,
 };

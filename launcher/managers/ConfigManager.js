@@ -1,6 +1,24 @@
 const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
-var config = { rootPath: `${process.env.APPDATA}\\.minecraft` };
+var config = {
+  rootPath: getMinecraftPath(),
+  lastVersions: [],
+};
+
+function getMinecraftPath() {
+  const platform = os.platform();
+
+  switch (platform) {
+    case "win32":
+      return path.join(process.env.APPDATA, ".minecraft");
+    case "linux":
+      return path.join(os.homedir(), ".minecraft");
+    default:
+      throw new Error(`Unsupported platform: ${platform}`);
+  }
+}
 
 const saveConfig = () => {
   return new Promise(async (resolve, reject) => {
@@ -9,7 +27,9 @@ const saveConfig = () => {
         config.rootPath + "\\better.config",
         JSON.stringify(config)
       );
-      console.log(`Config saved successfuly to ${config.rootPath}`);
+      console.log(
+        `Config saved successfuly to ${config.rootPath + "\\better.config"}`
+      );
       return resolve(config);
     } catch (error) {
       console.error(error);
@@ -28,7 +48,9 @@ const loadConfig = () => {
       config = JSON.parse(
         await fs.readFileSync(config.rootPath + "\\better.config")
       );
-      console.log(`Config loaded successfuly from ${config.rootPath}`);
+      console.log(
+        `Config loaded successfuly from ${config.rootPath + "\\better.config"}`
+      );
       return resolve(config);
     } catch (error) {
       console.error(error);

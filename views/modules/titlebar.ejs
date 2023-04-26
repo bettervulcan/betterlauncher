@@ -4,6 +4,8 @@
     position: fixed;
     height: 32px;
     width: 100%;
+    background-color: #080714;
+    color: #fff;
   }
 
   .maximized #titlebar {
@@ -17,24 +19,20 @@
     -webkit-app-region: drag;
   }
 
-  #titlebar {
-    color: #fff;
-  }
-
   #titlebar #drag-region {
     display: grid;
     grid-template-columns: auto 138px;
   }
 
   #window-title {
-    grid-column: 1;
-    display: flex;
-    align-items: center;
-    margin-left: 8px;
+    position: fixed;
+    width: 100%;
+    text-align: center;
     overflow: hidden;
     font-family: "Segoe UI", sans-serif;
     font-size: 16px;
     user-select: none;
+    transform: translateY(4px);
   }
 
   .maximized #window-title {
@@ -54,7 +52,6 @@
     position: absolute;
     top: 0;
     right: 0;
-    margin-right: 10px;
     height: 100%;
   }
 
@@ -137,32 +134,15 @@
         <img
           class="icon"
           srcset="
-            icons/min-w-10.png 1x,
-            icons/min-w-12.png 1.25x,
-            icons/min-w-15.png 1.5x,
-            icons/min-w-15.png 1.75x,
-            icons/min-w-20.png 2x,
-            icons/min-w-20.png 2.25x,
-            icons/min-w-24.png 2.5x,
-            icons/min-w-30.png 3x,
-            icons/min-w-30.png 3.5x
-          "
-          draggable="false"
-        />
-      </div>
-      <div class="button" id="restore-button">
-        <img
-          class="icon"
-          srcset="
-            icons/restore-w-10.png 1x,
-            icons/restore-w-12.png 1.25x,
-            icons/restore-w-15.png 1.5x,
-            icons/restore-w-15.png 1.75x,
-            icons/restore-w-20.png 2x,
-            icons/restore-w-20.png 2.25x,
-            icons/restore-w-24.png 2.5x,
-            icons/restore-w-30.png 3x,
-            icons/restore-w-30.png 3.5x
+            ../assets/icons/min-w-10.png 1x,
+            ../assets/icons/min-w-12.png 1.25x,
+            ../assets/icons/min-w-15.png 1.5x,
+            ../assets/icons/min-w-15.png 1.75x,
+            ../assets/icons/min-w-20.png 2x,
+            ../assets/icons/min-w-20.png 2.25x,
+            ../assets/icons/min-w-24.png 2.5x,
+            ../assets/icons/min-w-30.png 3x,
+            ../assets/icons/min-w-30.png 3.5x
           "
           draggable="false"
         />
@@ -171,15 +151,15 @@
         <img
           class="icon"
           srcset="
-            icons/close-w-10.png 1x,
-            icons/close-w-12.png 1.25x,
-            icons/close-w-15.png 1.5x,
-            icons/close-w-15.png 1.75x,
-            icons/close-w-20.png 2x,
-            icons/close-w-20.png 2.25x,
-            icons/close-w-24.png 2.5x,
-            icons/close-w-30.png 3x,
-            icons/close-w-30.png 3.5x
+            ../assets/icons/close-w-10.png 1x,
+            ../assets/icons/close-w-12.png 1.25x,
+            ../assets/icons/close-w-15.png 1.5x,
+            ../assets/icons/close-w-15.png 1.75x,
+            ../assets/icons/close-w-20.png 2x,
+            ../assets/icons/close-w-20.png 2.25x,
+            ../assets/icons/close-w-24.png 2.5x,
+            ../assets/icons/close-w-30.png 3x,
+            ../assets/icons/close-w-30.png 3.5x
           "
           draggable="false"
         />
