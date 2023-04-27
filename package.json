@@ -25,6 +25,6 @@
   "devDependencies": {
     "tailwindcss": "^3.2.7",
     "electron": "^23.2.0",
-    "electron-reload": "^2.0.0-alpha.1",
+    "electron-reload": "^2.0.0-alpha.1"
   }
 }
