@@ -135,16 +135,25 @@ const getLastVersions = () => {
 
 const getVersionNumberByName = (name) => {
   return new Promise(async (resolve, reject) => {
-    const versionJson = JSON.parse(
-      await fs.readFileSync(
+    if (
+      fs.existsSync(
         `${await ConfigManager.getVariable(
           "rootPath"
         )}\\versions\\${name}\\${name}.json`
       )
-    );
-    if (versionJson.inheritsFrom) return resolve(versionJson.inheritsFrom);
-    // TODO forge number version from json
-    if (versionJson.id) return resolve(versionJson.id);
+    ) {
+      const versionJson = JSON.parse(
+        await fs.readFileSync(
+          `${await ConfigManager.getVariable(
+            "rootPath"
+          )}\\versions\\${name}\\${name}.json`
+        )
+      );
+      if (versionJson.inheritsFrom) return resolve(versionJson.inheritsFrom);
+      // TODO forge number version from json
+      if (versionJson.id) return resolve(versionJson.id);
+    }
+    resolve(name);
   });
 };
 

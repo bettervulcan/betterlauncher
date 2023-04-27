@@ -1,7 +1,107 @@
 console.log("Loading renderer");
 
+var _eventHandlers = {}; // somewhere global
+
+const addListener = (node, event, handler, capture = false) => {
+  if (!(event in _eventHandlers)) {
+    _eventHandlers[event] = [];
+  }
+  _eventHandlers[event].push({
+    node: node,
+    handler: handler,
+    capture: capture,
+  });
+  node.addEventListener(event, handler, capture);
+};
+
+const removeAllListeners = (targetNode, event) => {
+  _eventHandlers[event]
+    .filter(({ node }) => node === targetNode)
+    .forEach(({ node, handler, capture }) =>
+      node.removeEventListener(event, handler, capture)
+    );
+
+  _eventHandlers[event] = _eventHandlers[event].filter(
+    ({ node }) => node !== targetNode
+  );
+};
+
+const checked = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+const checkedPath = document.createElementNS(
+  "http://www.w3.org/2000/svg",
+  "path"
+);
+
+checked.setAttribute("fill", "currentColor");
+checked.setAttribute("viewBox", "0 0 20 20");
+checked.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+checkedPath.setAttribute("aria-hidden", "true");
+checkedPath.setAttribute("fill", "currentColor");
+checkedPath.setAttribute("fill-rule", "evenodd");
+checkedPath.setAttribute(
+  "d",
+  "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+);
+checkedPath.setAttribute("clip-rule", "evenodd");
+checked.classList.add("w-4");
+checked.classList.add("h-4");
+checked.classList.add("mr-2");
+checked.classList.add("sm:w-5");
+checked.classList.add("sm:h-5");
+
+checked.appendChild(checkedPath);
+
 document.addEventListener("DOMContentLoaded", async () => {
+  let safeState = 0;
+  const statusLogin = document.getElementById("screenStatusLogin");
+  const statusVersion = document.getElementById("screenStatusVersion");
+  const statusRun = document.getElementById("screenStatusRun");
+
+  statusLogin.addEventListener("click", () => {
+    if (safeState > 1) {
+      switchView(currentView, "#welcome");
+      setScreensState("login");
+      statusLogin.childNodes[1].firstChild.remove();
+      if (safeState == 2) statusVersion.childNodes[1].firstChild.remove();
+    }
+  });
+  statusVersion.addEventListener("click", () => {
+    if (safeState > 2) {
+      switchView(currentView, "#versions");
+      statusLogin.childNodes[1].firstChild.remove();
+      setScreensState("version");
+      statusVersion.childNodes[1].firstChild.remove();
+    }
+  });
+
+  const setScreensState = (screen) => {
+    switch (screen) {
+      case "login":
+        safeState = 1;
+        statusLogin.classList.add("text-[#865DFF]");
+        statusVersion.classList.remove("text-[#865DFF]");
+        statusRun.classList.remove("text-[#865DFF]");
+        break;
+      case "version":
+        safeState = 2;
+        statusLogin.classList.remove("text-[#865DFF]");
+        statusVersion.classList.add("text-[#865DFF]");
+        statusRun.classList.remove("text-[#865DFF]");
+        statusLogin.childNodes[1].prepend(checked.cloneNode(true));
+        break;
+      case "run":
+        safeState = 3;
+        statusLogin.classList.remove("text-[#865DFF]");
+        statusVersion.classList.remove("text-[#865DFF]");
+        statusRun.classList.add("text-[#865DFF]");
+        statusVersion.childNodes[1].prepend(checked.cloneNode(true));
+        break;
+    }
+  };
+
   switchView("#welcome", "#welcome");
+  setScreensState("login");
 
   const runClientButton = document.getElementById("runClient");
   const openLoginMS = document.getElementById("openLoginMS");
@@ -30,6 +130,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectAccountTrigger.addEventListener("click", () => {
         window.electron.selectAccount(selectAccountTrigger.dataset.mcUuid);
         switchView(currentView, "#versions");
+        setScreensState("version");
       });
     });
   });
@@ -50,6 +151,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       selectVersionTrigger.addEventListener("click", () => {
         window.electron.selectVersion(selectVersionTrigger.dataset.mcUuid);
         switchView(currentView, "#run");
+        setScreensState("run");
         const summary = window.electron.getSummary();
         document.getElementById(
           "dynamicVersion"
@@ -67,6 +169,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   runClientButton.addEventListener("click", () => {
     window.electron.runClient();
+    statusRun.prepend(checked.cloneNode(true));
   });
 
   const openVersionModalButton = document.getElementById(
@@ -107,14 +210,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     changeFirstTable("optifine");
   });
 
-  const addFirstTableVersion = (version) => {
+  const addFirstTableVersion = (version, final = false) => {
     const button = document.createElement("button");
     firstTable.style.display = "block";
     button.className =
       "relative inline-flex items-center w-full px-4 py-2 text-sm first:rounded-t-lg last:rounded-b-lg font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
     button.innerText = `${version}`;
-    button.dataset.preVersion = version;
-    button.id = "secondTableTrigger";
+    if (final) {
+      button.dataset.version = version;
+      button.id = "finalVersionTrigger";
+    } else {
+      button.dataset.preVersion = version;
+      button.id = "secondTableTrigger";
+    }
     firstTable.appendChild(button);
   };
 
@@ -129,6 +237,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     button.className =
       "relative inline-flex items-center w-full px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
     button.innerText = `${version}`;
+    button.dataset.version = version;
+    button.id = "finalVersionTrigger";
     secondTable.appendChild(button);
   };
 
@@ -144,13 +254,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         clearFirstTable();
         clearSecondTable();
         window.electron.getInstalledVersions().forEach((version) => {
-          addFirstTableVersion(version);
+          addFirstTableVersion(version, true);
         });
+        refreshSelectVersionTriggers();
         break;
       case "release":
         clearFirstTable();
         clearSecondTable();
-        // console.log("release", window.electron.getVersionsByType("release"));
         window.electron.getVersionsByType("release").forEach((version) => {
           addFirstTableVersion(version[version.length - 1]);
           version.forEach((test) => {
@@ -172,37 +282,59 @@ document.addEventListener("DOMContentLoaded", async () => {
                         addSecondTableVersion(subVer);
                       }
                     });
+                    refreshSelectVersionTriggers();
                   }, 100);
                 })();
               });
             });
         });
+        refreshSelectVersionTriggers();
         break;
       case "snapshot":
         console.log("snapshot");
         clearFirstTable();
         clearSecondTable();
+        refreshSelectVersionTriggers();
         break;
       case "alpha":
         console.log("alpha");
         clearFirstTable();
         clearSecondTable();
+        refreshSelectVersionTriggers();
         break;
       case "fabric":
         console.log("fabric");
         clearFirstTable();
         clearSecondTable();
+        refreshSelectVersionTriggers();
         break;
       case "forge":
         console.log("forge");
         clearFirstTable();
         clearSecondTable();
+        refreshSelectVersionTriggers();
         break;
       case "optifine":
         console.log("optifine");
         clearFirstTable();
         clearSecondTable();
+        refreshSelectVersionTriggers();
         break;
     }
+  };
+
+  const refreshSelectVersionTriggers = () => {
+    document
+      .querySelectorAll("#finalVersionTrigger")
+      .forEach((finalVersionTrigger) => {
+        try {
+          removeAllListeners(finalVersionTrigger, "click");
+        } catch (error) {}
+        addListener(finalVersionTrigger, "click", () => {
+          if (finalVersionTrigger.dataset.version) {
+            window.electron.selectVersion(finalVersionTrigger.dataset.version);
+          }
+        });
+      });
   };
 });
