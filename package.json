@@ -4,7 +4,23 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "postinstall": "electron-builder install-app-deps",
+    "build": "electron-builder --windows --linux",
+    "release": "electron-builder --windows --linux --publish always"
+  },
+  "build": {
+    "appId": "pl.bettervulcan.launcher",
+    "productName": "betterlauncher",
+    "dmg": {
+      "icon": false
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Game"
+    }
   },
   "repository": {
     "type": "git",
