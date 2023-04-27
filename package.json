@@ -6,6 +6,10 @@
   "scripts": {
     "start": "electron ."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bettervulcan/betterlauncher-js.git"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
