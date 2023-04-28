@@ -61,9 +61,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   statusLogin.addEventListener("click", () => {
     if (safeState > 1) {
       switchView(currentView, "#welcome");
+      if (safeState > 2) {
+        statusVersion.childNodes[1].firstChild.remove();
+      }
       setScreensState("login");
       statusLogin.childNodes[1].firstChild.remove();
-      if (safeState == 2) statusVersion.childNodes[1].firstChild.remove();
     }
   });
   statusVersion.addEventListener("click", () => {
@@ -333,6 +335,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         addListener(finalVersionTrigger, "click", () => {
           if (finalVersionTrigger.dataset.version) {
             window.electron.selectVersion(finalVersionTrigger.dataset.version);
+            document
+              .querySelectorAll(`[data-modal-hide="staticModal"]`)
+              .forEach((closeBtn) => {
+                closeBtn.click();
+              });
           }
         });
       });

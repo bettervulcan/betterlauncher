@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, globalShortcut } = require("electron");
-const AccountsManager = require("./launcher/managers/AccountsManager");
+const AccountsManager = require("./launcher/managers/AccountManager");
 const ConfigManager = require("./launcher/managers/ConfigManager");
 const VersionManager = require("./launcher/managers/VersionManager");
 const LauncherMain = require("./launcher/Launcher");

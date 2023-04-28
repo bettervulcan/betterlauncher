@@ -8,6 +8,8 @@
   </head>
   <body>
     <%- include('modules/titlebar.ejs') %>
+    <!-- FOR TAILWIND REBUILD SCRIPT BYPASS -->
+    <div class="text-[#865DFF]"></div>
     <div
       id="app"
       class="h-screen w-screen bg-[#191825] overflow-hidden select-none"
@@ -56,6 +58,8 @@
     <script src="../assets/javascripts/renderer.js"></script>
 
     <script>
+      // This script has been stolen from the github.
+
       // The currently shown view container.
       let currentView;
 

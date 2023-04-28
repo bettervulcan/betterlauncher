@@ -1,6 +1,7 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const FileManager = require("./FileManager");
 
 var config = {
   rootPath: getMinecraftPath(),
@@ -23,12 +24,16 @@ function getMinecraftPath() {
 const saveConfig = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      await fs.writeFileSync(
-        config.rootPath + "\\better.config",
+      await FileManager.writeToFileOrCreate(
+        path.join(config.rootPath),
+        "better.config",
         JSON.stringify(config)
       );
       console.log(
-        `Config saved successfuly to ${config.rootPath + "\\better.config"}`
+        `Config saved successfuly to ${path.join(
+          config.rootPath,
+          "better.config"
+        )}`
       );
       return resolve(config);
     } catch (error) {
@@ -46,10 +51,13 @@ const loadConfig = () => {
     }
     try {
       config = JSON.parse(
-        await fs.readFileSync(config.rootPath + "\\better.config")
+        await fs.readFileSync(path.join(config.rootPath, "better.config"))
       );
       console.log(
-        `Config loaded successfuly from ${config.rootPath + "\\better.config"}`
+        `Config loaded successfuly from ${path.join(
+          config.rootPath,
+          "better.config"
+        )}`
       );
       return resolve(config);
     } catch (error) {
@@ -62,7 +70,9 @@ const loadConfig = () => {
 const isConfigExist = () => {
   return new Promise(async (resolve, reject) => {
     try {
-      return resolve(await fs.existsSync(config.rootPath + "\\better.config"));
+      return resolve(
+        await fs.existsSync(path.join(config.rootPath, "better.config"))
+      );
     } catch (error) {
       return reject(err);
     }

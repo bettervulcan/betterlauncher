@@ -1,6 +1,8 @@
 const fs = require("fs");
+const path = require("path");
 const axios = require("axios");
 const ConfigManager = require("./ConfigManager");
+const FileManager = require("./FileManager");
 
 const VersionManifest =
     "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json",
@@ -9,11 +11,18 @@ const VersionManifest =
 
 const getInstalledVersions = () => {
   return new Promise(async (resolve, reject) => {
-    const versionsRootPath =
-      (await ConfigManager.getVariable("rootPath")) + "\\versions";
     try {
+      if (
+        !(await fs.existsSync(
+          path.join(await ConfigManager.getVariable("rootPath"), "versions")
+        ))
+      )
+        return resolve([]);
       const versions = (
-        await fs.readdirSync(versionsRootPath, { withFileTypes: true })
+        await fs.readdirSync(
+          path.join(await ConfigManager.getVariable("rootPath"), "versions"),
+          { withFileTypes: true }
+        )
       )
         .filter((dirent) => dirent.isDirectory())
         .map((dirent) => dirent.name);
@@ -48,47 +57,21 @@ const downloadVersionJson = (versionObject) => {
       responseType: "stream",
     })
       .then(async (response) => {
-        if (
-          !(await fs.existsSync(
-            (await ConfigManager.getVariable("rootPath")) +
-              "\\versions\\" +
-              versionObject.name
-          ))
-        ) {
-          await fs.mkdirSync(
-            (await ConfigManager.getVariable("rootPath")) +
-              "\\versions\\" +
-              versionObject.name
-          );
-        }
-        if (
-          !(await fs.existsSync(
-            (await ConfigManager.getVariable("rootPath")) +
-              "\\versions\\" +
-              versionObject.name +
-              "\\" +
-              versionObject.name +
-              ".json"
-          ))
-        ) {
-          await fs.openSync(
-            (await ConfigManager.getVariable("rootPath")) +
-              "\\versions\\" +
-              versionObject.name +
-              "\\" +
-              versionObject.name +
-              ".json",
-            "w"
-          );
-        }
-        response.data.pipe(
+        await FileManager.createIfNotExistFile(
+          (await ConfigManager.getVariable("rootPath")) +
+            "\\versions\\" +
+            versionObject.name +
+            "\\",
+          versionObject.name + ".json"
+        );
+        await response.data.pipe(
           fs.createWriteStream(
-            (await ConfigManager.getVariable("rootPath")) +
-              "\\versions\\" +
-              versionObject.name +
-              "\\" +
-              versionObject.name +
-              ".json"
+            path.join(
+              await ConfigManager.getVariable("rootPath"),
+              "versions",
+              versionObject.name,
+              versionObject.name + ".json"
+            )
           )
         );
         resolve();
@@ -137,16 +120,22 @@ const getVersionNumberByName = (name) => {
   return new Promise(async (resolve, reject) => {
     if (
       fs.existsSync(
-        `${await ConfigManager.getVariable(
-          "rootPath"
-        )}\\versions\\${name}\\${name}.json`
+        path.join(
+          await ConfigManager.getVariable("rootPath"),
+          "versions",
+          name,
+          name + ".json"
+        )
       )
     ) {
       const versionJson = JSON.parse(
         await fs.readFileSync(
-          `${await ConfigManager.getVariable(
-            "rootPath"
-          )}\\versions\\${name}\\${name}.json`
+          path.join(
+            await ConfigManager.getVariable("rootPath"),
+            "versions",
+            name,
+            name + ".json"
+          )
         )
       );
       if (versionJson.inheritsFrom) return resolve(versionJson.inheritsFrom);
@@ -158,16 +147,16 @@ const getVersionNumberByName = (name) => {
 };
 
 // ! tests
-(async () => {
-  // console.log(await getVersionNumberByName("fabric-loader-0.14.17-1.19.3"));
-  //   console.log(await getInstalledVersions());
-  //       console.log(await getAvailableVersions("snapshot"));
-  //       console.log(await getAvailableVersions("old_alpha"));
-  //   const versions = await getAvailableVersions("release");
-  //   console.log(versions);
-  //   console.log(versions["1.8.9"]);
-  //   console.log(await downloadVersionJson(versions["1.8.9"]));
-})();
+// (async () => {
+// console.log(await getVersionNumberByName("fabric-loader-0.14.17-1.19.3"));
+//   console.log(await getInstalledVersions());
+//       console.log(await getAvailableVersions("snapshot"));
+//       console.log(await getAvailableVersions("old_alpha"));
+//   const versions = await getAvailableVersions("release");
+//   console.log(versions);
+//   console.log(versions["1.8.9"]);
+//   console.log(await downloadVersionJson(versions["1.8.9"]));
+// })();
 
 module.exports = {
   getInstalledVersions,
