@@ -1,22 +1,22 @@
 <div id="versions" class="screen" style="display: none">
-  <div class="flex-row h-[85vh] flex justify-center">
-    <div class="float-left mx-24 flex justify-center flex-col">
+  <div class="flex h-[85vh] flex-row justify-center">
+    <div class="float-left mx-24 flex flex-col justify-center">
       <h1
-        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl dark:text-white"
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight dark:text-white md:text-5xl lg:text-6xl"
       >
         Better
       </h1>
       <span
-        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-[#E384FF]"
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-[#E384FF] md:text-5xl lg:text-6xl"
         >Launcher</span
       >
     </div>
     <div
       id="right-content "
-      class="float-right text-center flex items-center w-\[100\%\] flex-col mx-24 justify-center"
+      class="w-\[100\%\] float-right mx-24 flex flex-col items-center justify-center text-center"
     >
       <p
-        class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+        class="text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl"
       >
         Teraz wybierz tylko wersję gry
       </p>
@@ -24,12 +24,12 @@
       <button
         id="dropdownVersionButton"
         data-dropdown-toggle="dropdownV"
-        class="text-white bg-[#865DFF] my-6 hover:bg-[#6a3bf7] focus:ring-transparent focus:outline-none font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center hover:transition-all transition-all duration-300"
+        class="my-6 inline-flex items-center rounded-lg bg-[#865DFF] px-4 py-2.5 text-center text-sm font-medium text-white transition-all duration-300 hover:bg-[#6a3bf7] hover:transition-all focus:outline-none focus:ring-transparent"
         type="button"
       >
         Wybierz wersję gry
         <svg
-          class="w-4 h-4 ml-2"
+          class="ml-2 h-4 w-4"
           aria-hidden="true"
           fill="none"
           stroke="currentColor"
@@ -47,7 +47,7 @@
       <!-- Dropdown menu -->
       <div
         id="dropdownV"
-        class="z-10 hidden divide-y divide-gray-100 rounded-lg shadow w-44 bg-[#6b4acc]"
+        class="z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-[#6b4acc] shadow"
       >
         <ul
           class="py-2 text-sm text-gray-700 dark:text-gray-200"
@@ -60,7 +60,7 @@
             id="openVersionModalButton"
             data-modal-target="staticModal"
             data-modal-toggle="staticModal"
-            class="block font-bold px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-[#865DFF] dark:text-gray-200 dark:hover:text-white focus:ring-transparent hover:transition-all transition-all duration-300"
+            class="block cursor-pointer px-4 py-2 text-sm font-bold text-gray-700 transition-all duration-300 hover:bg-[#865DFF] hover:transition-all focus:ring-transparent dark:text-gray-200 dark:hover:text-white"
             >Więcej wersji gry</a
           >
         </div>
@@ -73,25 +73,25 @@
   data-modal-backdrop="static"
   tabindex="-1"
   aria-hidden="true"
-  class="fixed top-0 hidden animate-opacityAnimation left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full"
+  class="fixed top-0 left-0 right-0 z-50 hidden h-[calc(100%-1rem)] w-full animate-opacityAnimation overflow-y-auto overflow-x-hidden p-4 md:inset-0 md:h-full"
 >
-  <div class="relative w-full h-full max-w-2xl md:h-auto">
+  <div class="relative h-full w-full max-w-2xl md:h-auto">
     <!-- Modal content -->
     <div class="relative rounded-lg bg-[#11111a] shadow-2xl">
       <!-- Modal header -->
       <div
-        class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+        class="flex items-start justify-between rounded-t border-b p-4 dark:border-gray-600"
       >
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
           Wybierz wersje gry
         </h3>
         <button
           type="button"
-          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
           data-modal-hide="staticModal"
         >
           <svg
-            class="w-5 h-5"
+            class="h-5 w-5"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -105,19 +105,19 @@
         </button>
       </div>
       <!-- Modal body -->
-      <div class="p-6 h-[50vh] flex justify-center max-h-full">
+      <div class="flex h-[50vh] max-h-full justify-center p-6">
         <div class="float-left w-[30%]">
           <div
-            class="w-full text-gray-900 border border-gray-200 rounded-lg bg-[#191825] dark:border-gray-600 dark:text-white"
+            class="w-full rounded-lg border border-gray-200 bg-[#191825] text-gray-900 dark:border-gray-600 dark:text-white"
           >
             <button
               id="instCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 first:rounded-t-lg last:rounded-b-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center border-b border-gray-200 px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -133,11 +133,11 @@
             <button
               id="releaseCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center border-b border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -151,11 +151,11 @@
             <button
               id="snapshotCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center border-b border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -171,11 +171,11 @@
             <button
               id="alphaCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center border-b border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -191,11 +191,11 @@
             <button
               id="fabricCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center border-b border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -209,11 +209,11 @@
             <button
               id="forgeCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center border-b border-gray-200 px-4 py-2 text-sm font-medium hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -227,11 +227,11 @@
             <button
               id="optifineCategoryButton"
               type="button"
-              class="relative inline-flex items-center w-full px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white"
+              class="relative inline-flex w-full items-center px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-gray-500"
             >
               <svg
                 aria-hidden="true"
-                class="w-4 h-4 mr-2 fill-current"
+                class="mr-2 h-4 w-4 fill-current"
                 fill="currentColor"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
@@ -246,22 +246,22 @@
             </button>
           </div>
         </div>
-        <div class="flex items-center ml-4 w-[30%]">
+        <div class="ml-4 flex w-[30%] items-center">
           <div class="h-[100%]">
-            <div class="float-left overflow-y-scroll scrollbar h-full">
+            <div class="scrollbar float-left h-full overflow-y-scroll">
               <div
                 id="firstTable"
-                class="w-full text-gray-900 border border-gray-200 rounded-lg bg-[#191825] dark:border-gray-600 dark:text-white"
+                class="w-full rounded-lg border border-gray-200 bg-[#191825] text-gray-900 dark:border-gray-600 dark:text-white"
               ></div>
             </div>
           </div>
         </div>
-        <div class="flex items-center ml-4 w-[30%]">
+        <div class="ml-4 flex w-[30%] items-center">
           <div class="h-full">
-            <div class="float-left overflow-y-scroll scrollbar h-[89%]">
+            <div class="scrollbar float-left h-[89%] overflow-y-scroll">
               <div
                 id="secondTable"
-                class="w-full text-gray-900 border border-gray-200 rounded-lg bg-[#191825] dark:border-gray-600 dark:text-white"
+                class="w-full rounded-lg border border-gray-200 bg-[#191825] text-gray-900 dark:border-gray-600 dark:text-white"
               ></div>
             </div>
           </div>

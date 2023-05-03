@@ -12,41 +12,42 @@
     <div class="text-[#865DFF]"></div>
     <div
       id="app"
-      class="h-screen w-screen bg-[#191825] overflow-hidden select-none"
+      class="h-screen w-screen select-none overflow-hidden bg-[#191825]"
     >
-      <div class="flex items-center h-screen w-screen justify-center flex-col">
+      <div class="flex h-screen w-screen flex-col items-center justify-center">
         <div
-          class="top w-[80%] h-[15vh] flex justify-center"
+          class="top flex h-[15vh] w-[80%] justify-center"
           style="margin-top: 48px"
         >
           <ol
-            class="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400 sm:text-base"
+            class="flex w-full items-center text-center text-sm font-medium text-gray-500 dark:text-gray-400 sm:text-base"
           >
             <li
               id="screenStatusLogin"
-              class="flex md:w-full items-center sm:after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-10 dark:after:border-gray-700"
+              class="after:border-1 flex items-center after:mx-6 after:hidden after:h-1 after:w-full after:border-b after:border-gray-200 dark:after:border-gray-700 sm:after:inline-block sm:after:content-[''] md:w-full xl:after:mx-10"
             >
               <span
-                class="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500"
+                class="flex items-center after:mx-2 after:font-light after:text-gray-200 after:content-['/'] dark:after:text-gray-500 sm:after:hidden"
               >
-                Zaloguj <span class="hidden sm:inline-flex sm:ml-2">się</span>
+                Zaloguj
+                <span class="hidden sm:ml-2 sm:inline-flex">się</span>
               </span>
             </li>
             <li
               id="screenStatusVersion"
-              class="flex md:w-full items-center after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-10 dark:after:border-gray-700"
+              class="after:border-1 flex items-center after:mx-6 after:hidden after:h-1 after:w-full after:border-b after:border-gray-200 after:content-[''] dark:after:border-gray-700 sm:after:inline-block md:w-full xl:after:mx-10"
             >
               <span
-                class="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:font-light after:text-gray-200 dark:after:text-gray-500"
+                class="flex items-center after:mx-2 after:font-light after:text-gray-200 after:content-['/'] dark:after:text-gray-500 sm:after:hidden"
               >
                 Wybierz
-                <span class="hidden sm:inline-flex sm:mx-2">wersję </span>
+                <span class="hidden sm:mx-2 sm:inline-flex">wersję </span>
                 gry
               </span>
             </li>
             <li class="flex items-center" id="screenStatusRun">
               Uruchamianie
-              <span class="hidden sm:inline-flex sm:ml-2">gry</span>
+              <span class="hidden sm:ml-2 sm:inline-flex">gry</span>
             </li>
           </ol>
         </div>

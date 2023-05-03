@@ -1,29 +1,29 @@
 <div id="welcome" style="display: none">
-  <div class="flex-row h-[85vh] flex justify-around w-screen">
-    <div class="float-left mx-24 flex justify-center flex-col">
+  <div class="flex h-[85vh] w-screen flex-row justify-around">
+    <div class="float-left mx-24 flex flex-col justify-center">
       <h1
-        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl dark:text-white"
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight dark:text-white md:text-5xl lg:text-6xl"
       >
         Better
       </h1>
       <span
-        class="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-[#E384FF]"
+        class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-[#E384FF] md:text-5xl lg:text-6xl"
         >Launcher</span
       >
     </div>
     <div
       id="right-content "
-      class="float-right justify-center text-center flex items-center w-\[100\%\] flex-col mx-24"
+      class="w-\[100\%\] float-right mx-24 flex flex-col items-center justify-center text-center"
     >
       <p
-        class="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400"
+        class="text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl"
       >
         Nowy, zajebiście szybki, launcher do minecrafta
       </p>
 
       <button
         type="button"
-        class="text-white bg-[#FFA3FD] my-6 hover:bg-[#E384FF]/90 focus:ring-transparent focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 mb-2 hover:transition-all transition-all duration-300"
+        class="my-6 mr-2 mb-2 inline-flex items-center rounded-lg bg-[#FFA3FD] px-5 py-2.5 text-center text-sm font-medium text-white transition-all duration-300 hover:bg-[#E384FF]/90 hover:transition-all focus:outline-none focus:ring-transparent"
         id="openLoginMS"
       >
         <svg
@@ -41,18 +41,18 @@
         Zaloguj się kontem Microsoft
       </button>
       <hr
-        class="w-48 h-1 mx-auto my-6 bg-gray-100 border-0 rounded dark:bg-gray-700"
+        class="mx-auto my-6 h-1 w-48 rounded border-0 bg-gray-100 dark:bg-gray-700"
       />
 
       <button
         id="dropdownAccountButton"
         data-dropdown-toggle="dropdown"
-        class="text-white bg-[#865DFF] hover:bg-[#6a3bf7] focus:ring-transparent focus:outline-none font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center hover:transition-all transition-all duration-300"
+        class="inline-flex items-center rounded-lg bg-[#865DFF] px-4 py-2.5 text-center text-sm font-medium text-white transition-all duration-300 hover:bg-[#6a3bf7] hover:transition-all focus:outline-none focus:ring-transparent"
         type="button"
       >
         Wybierz konto
         <svg
-          class="w-4 h-4 ml-2"
+          class="ml-2 h-4 w-4"
           aria-hidden="true"
           fill="none"
           stroke="currentColor"
@@ -70,7 +70,7 @@
       <!-- Dropdown menu -->
       <div
         id="dropdown"
-        class="z-10 hidden divide-y divide-gray-100 rounded-lg shadow w-44 bg-[#6b4acc]"
+        class="z-10 hidden w-44 divide-y divide-gray-100 rounded-lg bg-[#6b4acc] shadow"
       >
         <ul
           class="py-2 text-sm text-gray-700 dark:text-gray-200"
@@ -84,7 +84,7 @@
           data-modal-toggle="offlineAccounts"
         >
           <a
-            class="block font-bold px-4 py-2 text-sm cursor-pointer text-gray-700 hover:bg-[#865DFF] dark:text-gray-200 dark:hover:text-white focus:ring-transparent hover:transition-all transition-all duration-300"
+            class="block cursor-pointer px-4 py-2 text-sm font-bold text-gray-700 transition-all duration-300 hover:bg-[#865DFF] hover:transition-all focus:ring-transparent dark:text-gray-200 dark:hover:text-white"
             >Dodaj konto (offline)</a
           >
         </div>
@@ -97,25 +97,25 @@
   data-modal-backdrop="static"
   tabindex="-1"
   aria-hidden="true"
-  class="fixed top-0 hidden animate-opacityAnimation left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full"
+  class="fixed top-0 left-0 right-0 z-50 hidden h-[calc(100%-1rem)] w-full animate-opacityAnimation overflow-y-auto overflow-x-hidden p-4 md:inset-0 md:h-full"
 >
-  <div class="relative w-[50%] h-full max-w-2xl md:h-auto">
+  <div class="relative h-full w-[50%] max-w-2xl md:h-auto">
     <!-- Modal content -->
     <div class="relative rounded-lg bg-[#11111a] shadow-2xl">
       <!-- Modal header -->
       <div
-        class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+        class="flex items-start justify-between rounded-t border-b p-4 dark:border-gray-600"
       >
         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
           Dodaj konto offline
         </h3>
         <button
           type="button"
-          class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+          class="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
           data-modal-hide="offlineAccounts"
         >
           <svg
-            class="w-5 h-5"
+            class="h-5 w-5"
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -129,25 +129,26 @@
         </button>
       </div>
       <!-- Modal body -->
-      <div class="p-6 h-[30vh] flex justify-center max-h-full items-center">
-        <div class="flex justify-center items-center flex-row">
-          <div class="flex items-center justify-center flex-col">
+      <div class="flex h-[30vh] max-h-full items-center justify-center p-6">
+        <div class="flex flex-row items-center justify-center">
+          <div class="flex flex-col items-center justify-center">
             <input
               type="text"
               id="first_name"
-              class="bg-gray-50 border border-gray-300 text-gray-900 outline-none text-sm rounded-lg ring-transparent ring-0 focus:ring-0 focus:ring-transparent block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 outline-none ring-0 ring-transparent focus:ring-0 focus:ring-transparent dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
               placeholder="Nickname"
               required
             />
+            <p id="valdate" class="text-white">twoj stary jest za krotki</p>
           </div>
           <button
             type="button"
             id="addAccountOffline"
-            class="text-white bg-blue-700 ml-5 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            class="ml-5 mr-2 inline-flex items-center rounded-lg bg-blue-700 p-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             <svg
               aria-hidden="true"
-              class="w-5 h-5"
+              class="h-5 w-5"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"

@@ -1,7 +1,7 @@
-const { app, BrowserWindow, ipcMain, globalShortcut } = require("electron");
-const AccountsManager = require("./launcher/managers/AccountManager");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const ConfigManager = require("./launcher/managers/ConfigManager");
 const VersionManager = require("./launcher/managers/VersionManager");
+const AccountsManager = require("./launcher/managers/AccountManager");
 const LauncherMain = require("./launcher/Launcher");
 const path = require("path");
 
@@ -28,7 +28,7 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     height: Math.round(height * 0.8),
     width: Math.round(width * 0.7),
-    // frame: false,
+    frame: false,
     webPreferences: {
       enableRemoteModule: false,
       contextIsolation: true,
@@ -72,15 +72,23 @@ ipcMain.on("openLoginMS", (event) => {
       const profile = await loginObj.getMinecraft();
 
       await AccountsManager.addAccount({
+        premium: true,
         uuid: profile.profile.id,
         displayName: profile.profile.name,
         refreshToken: await loginObj.save(),
-        lastPlayed: 0,
       });
     })
     .catch((err) => {
-      console.log("err", err); // ? on gui cloased or something xD
+      console.log("err", err); // ? on gui closed or something xD
     });
+});
+
+ipcMain.on("useCracked", async (event, args) => {
+  await AccountsManager.addAccount({
+    premium: false,
+    uuid: args.uuid,
+    displayName: args.uuid,
+  });
 });
 
 ipcMain.on("getAccounts", async (event) => {

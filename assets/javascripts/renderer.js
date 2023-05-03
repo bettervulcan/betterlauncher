@@ -62,44 +62,58 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (safeState > 1) {
       switchView(currentView, "#welcome");
       if (safeState > 2) {
-        statusVersion.childNodes[1].firstChild.remove();
+        setTimeout(() => {
+          statusVersion.childNodes[1].firstChild.remove();
+          $(statusVersion.childNodes[1]).hide().fadeIn(1000);
+        }, 600);
       }
-      setScreensState("login");
-      statusLogin.childNodes[1].firstChild.remove();
+      setTimeout(() => {
+        setScreensState("login");
+        statusLogin.childNodes[1].firstChild.remove();
+        $(statusLogin.childNodes[1]).hide().fadeIn(1000);
+      }, 600);
     }
   });
   statusVersion.addEventListener("click", () => {
     if (safeState > 2) {
       switchView(currentView, "#versions");
       statusLogin.childNodes[1].firstChild.remove();
-      setScreensState("version");
-      statusVersion.childNodes[1].firstChild.remove();
+      setTimeout(() => {
+        setScreensState("version");
+        statusVersion.childNodes[1].firstChild.remove();
+        $(statusVersion.childNodes[1]).hide().fadeIn(1000);
+      }, 600);
     }
   });
 
   const setScreensState = (screen) => {
-    switch (screen) {
-      case "login":
-        safeState = 1;
-        statusLogin.classList.add("text-[#865DFF]");
-        statusVersion.classList.remove("text-[#865DFF]");
-        statusRun.classList.remove("text-[#865DFF]");
-        break;
-      case "version":
-        safeState = 2;
-        statusLogin.classList.remove("text-[#865DFF]");
-        statusVersion.classList.add("text-[#865DFF]");
-        statusRun.classList.remove("text-[#865DFF]");
-        statusLogin.childNodes[1].prepend(checked.cloneNode(true));
-        break;
-      case "run":
-        safeState = 3;
-        statusLogin.classList.remove("text-[#865DFF]");
-        statusVersion.classList.remove("text-[#865DFF]");
-        statusRun.classList.add("text-[#865DFF]");
-        statusVersion.childNodes[1].prepend(checked.cloneNode(true));
-        break;
-    }
+    setTimeout(() => {
+      switch (screen) {
+        case "login":
+          safeState = 1;
+          statusLogin.classList.add("text-[#865DFF]");
+          statusVersion.classList.remove("text-[#865DFF]");
+          statusRun.classList.remove("text-[#865DFF]");
+          $(statusRun.childNodes[1]).hide().fadeIn(1000);
+          break;
+        case "version":
+          safeState = 2;
+          statusLogin.classList.remove("text-[#865DFF]");
+          statusVersion.classList.add("text-[#865DFF]");
+          statusRun.classList.remove("text-[#865DFF]");
+          statusLogin.childNodes[1].prepend(checked.cloneNode(true));
+          $(statusLogin.childNodes[1]).hide().fadeIn(1000);
+          break;
+        case "run":
+          safeState = 3;
+          statusLogin.classList.remove("text-[#865DFF]");
+          statusVersion.classList.remove("text-[#865DFF]");
+          statusRun.classList.add("text-[#865DFF]");
+          statusVersion.childNodes[1].prepend(checked.cloneNode(true));
+          $(statusVersion.childNodes[1]).hide().fadeIn(1000);
+          break;
+      }
+    }, 600);
   };
 
   switchView("#welcome", "#welcome");
