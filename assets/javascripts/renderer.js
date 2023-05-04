@@ -344,4 +344,104 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       });
   };
+  const addCrackFinish = document.getElementById("addAccountOffline");
+  const nickLengthText = document.getElementById("nickLengthText"),
+    nickLengthAnim = document.getElementById("nickLengthAnim");
+  const specialCharsText = document.getElementById("specialCharsText"),
+    specialCharsAnim = document.getElementById("specialCharsAnim");
+  const nicknameInput = document.getElementById("nicknameInput");
+  const premiumNickText = document.getElementById("premiumNickText"),
+    premiumNickAnim = document.getElementById("premiumNickAnim");
+  let lengthPass = false,
+    charsPass = false,
+    premiumPass = false,
+    fetchedName = "";
+
+  nicknameInput.addEventListener("input", () => {
+    if (nicknameInput.value.length > 3 && nicknameInput.value.length < 16) {
+      nickLengthAnim.classList.remove("animate-pulse");
+      nickLengthText.classList.remove("text-gray-400");
+      nickLengthText.classList.add("text-[#E384FF]");
+      lengthPass = true;
+    } else {
+      nickLengthAnim.classList.add("animate-pulse");
+      nickLengthText.classList.add("text-gray-400");
+      nickLengthText.classList.remove("text-[#E384FF]");
+      lengthPass = false;
+    }
+    if (nicknameInput.value.match(/[^a-zA-Z0-9_]/)) {
+      specialCharsAnim.classList.add("animate-pulse");
+      specialCharsText.classList.add("text-gray-400");
+      specialCharsText.classList.remove("text-[#E384FF]");
+      charsPass = false;
+    } else {
+      specialCharsAnim.classList.remove("animate-pulse");
+      specialCharsText.classList.remove("text-gray-400");
+      specialCharsText.classList.add("text-[#E384FF]");
+      charsPass = true;
+    }
+  });
+  const checkPremium = () => {
+    console.log(
+      charsPass &&
+        lengthPass +
+          " : " +
+          nicknameInput.value +
+          " : " +
+          fetchedName +
+          " : " +
+          (charsPass && lengthPass && fetchedName != nicknameInput.value)
+    );
+    if (
+      charsPass &&
+      lengthPass &&
+      nicknameInput.value &&
+      fetchedName != nicknameInput.value
+    ) {
+      fetch(
+        `https://api.mojang.com/users/profiles/minecraft/${nicknameInput.value}`
+      )
+        .then((res) => {
+          fetchedName = nicknameInput.value;
+          res.json().then((data) => {
+            console.log(data);
+            if (data.hasOwnProperty("id")) {
+              premiumNickAnim.classList.add("animate-pulse");
+              premiumNickText.classList.add("text-gray-400");
+              premiumNickText.classList.remove("text-[#E384FF]");
+              premiumPass = false;
+            } else {
+              premiumNickAnim.classList.remove("animate-pulse");
+              premiumNickText.classList.remove("text-gray-400");
+              premiumNickText.classList.add("text-[#E384FF]");
+              premiumPass = true;
+            }
+          });
+        })
+        .catch((err) => {
+          premiumNickAnim.classList.remove("animate-pulse");
+          premiumNickText.classList.add("text-gray-400");
+          premiumNickText.classList.remove("text-[#E384FF]");
+          premiumPass = true;
+        });
+    }
+  };
+  var premiumCheckInterval;
+  document
+    .querySelector(`[data-modal-target="offlineAccounts"]`)
+    .addEventListener("click", () => {
+      premiumCheckInterval = setInterval(checkPremium, 2500);
+    });
+  addCrackFinish.addEventListener("click", () => {
+    checkPremium();
+    if (lengthPass && charsPass && premiumPass) {
+      if (premiumCheckInterval) clearInterval(premiumCheckInterval);
+      window.electron.useCrack(nicknameInput.value);
+      document
+        .querySelectorAll(`[data-modal-hide="offlineAccounts"]`)
+        .forEach((closeBtn) => {
+          closeBtn.click();
+        });
+    }
+  });
 });

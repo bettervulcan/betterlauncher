@@ -98,7 +98,7 @@ const addAccount = (accountObj) => {
     if (await isNewAccount(accountObj)) {
       await accounts.accounts.push(accountObj);
     } else {
-      console.log(accountObj.name, "already exist");
+      console.log(accountObj.displayName, "already exist");
     }
     resolve(await saveAccounts());
   });

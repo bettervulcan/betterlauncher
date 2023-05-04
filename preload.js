@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("electron", {
   close: () => ipcRenderer.send("closeWindow"),
   minimalize: () => ipcRenderer.send("minimalizeWindow"),
   openLoginMS: () => ipcRenderer.send("openLoginMS"),
+  useCrack: (name) => ipcRenderer.send("useCrack", name),
   getAccounts: () => ipcRenderer.sendSync("getAccounts"),
   selectAccount: (uuid) => ipcRenderer.send("selectedAccount", uuid),
   getLastVersions: () => ipcRenderer.sendSync("getLastVersions"),

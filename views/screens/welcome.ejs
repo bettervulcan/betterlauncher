@@ -140,7 +140,7 @@
                 <div class="animate-pulse" id="nickLengthAnim">
                   <time
                     id="nickLengthText"
-                    class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
+                    class="mb-1 text-sm font-normal leading-none text-gray-400"
                     >Min. 3, max. 16 znaków</time
                   >
                 </div>
@@ -149,9 +149,10 @@
                 <div
                   class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -left-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"
                 ></div>
-                <div class="animate-pulse" id="specialChars">
+                <div class="animate-pulse" id="specialCharsAnim">
                   <time
-                    class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
+                    id="specialCharsText"
+                    class="mb-1 text-sm font-normal leading-none text-gray-400"
                     >Nazwa nie może zawierać <br />
                     znaków specjalnych</time
                   >
@@ -161,9 +162,10 @@
                 <div
                   class="absolute w-3 h-3 bg-gray-200 rounded-full mt-1.5 -left-1.5 border border-white dark:border-gray-900 dark:bg-gray-700"
                 ></div>
-                <div class="animate-pulse" id="premiumNick">
+                <div class="animate-pulse" id="premiumNickAnim">
                   <time
-                    class="mb-1 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"
+                    id="premiumNickText"
+                    class="mb-1 text-sm font-normal leading-none text-gray-400"
                     >Nazwa nie może być <br />
                     gracza premium</time
                   >
@@ -173,9 +175,8 @@
           </div>
           <div class="flex justify-center items-center flex-col">
             <input
-              oninput="console.log($(`#first_name`).val())"
               type="text"
-              id="first_name"
+              id="nicknameInput"
               class="bg-gray-50 border border-gray-300 text-gray-900 outline-none text-sm rounded-lg ring-transparent ring-0 focus:ring-0 focus:ring-transparent block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
               placeholder="Nazwa użytkownika"
               required

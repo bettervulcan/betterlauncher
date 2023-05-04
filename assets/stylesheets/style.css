@@ -861,92 +861,6 @@ video {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes shake {
-  0% {
-    transform: translateX(0rem);
-  }
-
-  25% {
-    transform: translateX(-0.5rem);
-  }
-
-  75% {
-    transform: translateX(0.5rem);
-  }
-
-  100% {
-    transform: translateX(0rem);
-  }
-}
-
-.animate-shake {
-  animation: shake .5s both;
-}
-
-@keyframes wiggle {
-  0%, 100% {
-    transform: rotate(-3deg);
-  }
-
-  50% {
-    transform: rotate(3deg);
-  }
-}
-
-.animate-wiggle {
-  animation: wiggle 1s both;
-}
-
-@keyframes wiggle-more {
-  0%, 100% {
-    transform: rotate(-12deg);
-  }
-
-  50% {
-    transform: rotate(12deg);
-  }
-}
-
-.animate-wiggle-more {
-  animation: wiggle-more 1s both;
-}
-
-@keyframes jump-out {
-  0% {
-    transform: scale(100%);
-  }
-
-  20% {
-    transform: scale(120%);
-  }
-
-  100% {
-    transform: scale(0%);
-  }
-}
-
-.animate-jump-out {
-  animation: jump-out .5s both;
-}
-
-@keyframes jump-in {
-  0% {
-    transform: scale(0%);
-  }
-
-  80% {
-    transform: scale(120%);
-  }
-
-  100% {
-    transform: scale(100%);
-  }
-}
-
-.animate-jump-in {
-  animation: jump-in .5s both;
-}
-
 .cursor-pointer {
   cursor: pointer;
 }
@@ -1376,18 +1290,6 @@ video {
   transition-duration: 300ms;
 }
 
-.animate-duration-1000 {
-  animation-duration: 1000ms;
-}
-
-.animate-once {
-  animation-iteration-count: 1;
-}
-
-.animate-ease-in {
-  animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
-}
-
 body {
   overflow: hidden;
 }
@@ -1604,11 +1506,6 @@ body {
   .dark\:text-gray-400 {
     --tw-text-opacity: 1;
     color: rgb(156 163 175 / var(--tw-text-opacity));
-  }
-
-  .dark\:text-gray-500 {
-    --tw-text-opacity: 1;
-    color: rgb(107 114 128 / var(--tw-text-opacity));
   }
 
   .dark\:text-white {

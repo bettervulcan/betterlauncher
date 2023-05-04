@@ -1,8 +1,9 @@
 const { app, BrowserWindow, ipcMain, globalShortcut } = require("electron");
 const AccountsManager = require("./launcher/managers/AccountManager");
-const ConfigManager = require("./launcher/managers/ConfigManager");
 const VersionManager = require("./launcher/managers/VersionManager");
+const ConfigManager = require("./launcher/managers/ConfigManager");
 const LauncherMain = require("./launcher/Launcher");
+const crypto = require("crypto");
 const path = require("path");
 
 const launchOptions = {
@@ -70,17 +71,24 @@ ipcMain.on("openLoginMS", (event) => {
   LauncherMain.openLoginMS()
     .then(async (loginObj) => {
       const profile = await loginObj.getMinecraft();
-
       await AccountsManager.addAccount({
+        premium: true,
         uuid: profile.profile.id,
         displayName: profile.profile.name,
         refreshToken: await loginObj.save(),
-        lastPlayed: 0,
       });
     })
     .catch((err) => {
       console.log("err", err); // ? on gui cloased or something xD
     });
+});
+
+ipcMain.on("useCrack", async (event, name) => {
+  await AccountsManager.addAccount({
+    premium: false,
+    uuid: crypto.randomUUID().replaceAll("-", ""),
+    displayName: name,
+  });
 });
 
 ipcMain.on("getAccounts", async (event) => {
@@ -134,10 +142,20 @@ ipcMain.on("getSummary", async (event) => {
 });
 
 ipcMain.on("runClient", async (event) => {
-  await LauncherMain.launchClient(
-    launchOptions.accountObjSelected.refreshToken,
-    (await ConfigManager.getVariable("rootPath")).replace(/\/\//g, "/"),
-    launchOptions.versionNameSelected,
-    launchOptions.memorySelected
-  ).catch(console.log);
+  if (launchOptions.accountObjSelected.premium) {
+    await LauncherMain.launchClient(
+      launchOptions.accountObjSelected.refreshToken,
+      path.join(await ConfigManager.getVariable("rootPath")),
+      launchOptions.versionNameSelected,
+      launchOptions.memorySelected
+    ).catch(console.log);
+  } else {
+    await LauncherMain.launchClientAsCrack(
+      launchOptions.accountObjSelected.displayName,
+      launchOptions.accountObjSelected.uuid,
+      path.join(await ConfigManager.getVariable("rootPath")),
+      launchOptions.versionNameSelected,
+      launchOptions.memorySelected
+    ).catch(console.log);
+  }
 });

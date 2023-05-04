@@ -36,6 +36,6 @@ const getJavaExec = () => {
 };
 
 // ! test
-(async () => {
-  console.log(await getJavaExec());
-})();
+// (async () => {
+//   console.log(await getJavaExec());
+// })();
