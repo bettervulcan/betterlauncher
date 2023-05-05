@@ -4,6 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
+    "tailwinddev": "npx tailwindcss -i ./assets/stylesheets/input.css -o ./assets/stylesheets/style.css --watch",
     "start": "electron .",
     "postinstall": "electron-builder install-app-deps",
     "release": "electron-builder --windows --linux --publish always"

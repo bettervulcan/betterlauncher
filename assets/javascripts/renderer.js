@@ -166,7 +166,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   openLoginMS.addEventListener("click", () => {
-    window.electron.openLoginMS();
+    document.getElementById("loading").classList.remove("hidden");
+    // document.getElementById("loading").classList.add("flex");
+    let loadingContainer = document.getElementById("loader");
+    let loading = bodymovin.loadAnimation({
+      wrapper: loadingContainer,
+      animType: "svg",
+      loop: false,
+
+      path: "../assets/icons/Engines.json",
+    });
+    loading.addEventListener("complete", () => {
+      console.log("chuj");
+      loading.goToAndPlay(120, true);
+    });
+    loading.addEventListener("enterFrame", (e) => {
+      console.log(e.currentTime);
+      if (e.currentTime >= 20) {
+        loadingContainer.classList.remove("scale-[180]");
+      }
+      // loading.goToAndPlay(120, true);
+    });
+    window.electron.openLoginMS().then(() => {
+      document.getElementById("loading").classList.add("hidden");
+    });
   });
 
   runClientButton.addEventListener("click", () => {
