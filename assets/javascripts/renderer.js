@@ -166,8 +166,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   openLoginMS.addEventListener("click", () => {
-    document.getElementById("loading").classList.remove("hidden");
-    // document.getElementById("loading").classList.add("flex");
+    const loadingElement = document.getElementById("loading");
+    const loadingTask = document.getElementById("currentTask");
+    $(loadingElement).fadeIn(500);
     let loadingContainer = document.getElementById("loader");
     let loading = bodymovin.loadAnimation({
       wrapper: loadingContainer,
@@ -177,18 +178,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       path: "../assets/icons/Engines.json",
     });
     loading.addEventListener("complete", () => {
-      console.log("chuj");
       loading.goToAndPlay(120, true);
     });
     loading.addEventListener("enterFrame", (e) => {
-      console.log(e.currentTime);
       if (e.currentTime >= 20) {
         loadingContainer.classList.remove("scale-[180]");
       }
-      // loading.goToAndPlay(120, true);
     });
-    window.electron.openLoginMS().then(() => {
-      document.getElementById("loading").classList.add("hidden");
+    window.electron.openLoginMS();
+    window.electron.storeLoginStatus((event, data) => {
+      loadingTask.innerText = data;
+      setTimeout(() => {
+        $(loadingElement).fadeOut(500, () => {
+          loading.stop();
+          loadingContainer.innerHTML = "";
+          loadingContainer.classList.add("scale-[180]");
+          loadingTask.innerText = "Logowanie...";
+        });
+      }, 1500);
     });
   });
 

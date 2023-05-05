@@ -77,9 +77,13 @@ ipcMain.on("openLoginMS", (event) => {
         displayName: profile.profile.name,
         refreshToken: await loginObj.save(),
       });
+      event.sender.send("statusLoginMS", "Success");
     })
     .catch((err) => {
       console.log("err", err); // ? on gui cloased or something xD
+      if (err === "error.gui.closed")
+        return event.sender.send("statusLoginMS", `Przerwano logowanie`);
+      event.sender.send("statusLoginMS", `Error ${JSON.stringify(err)}`);
     });
 });
 
