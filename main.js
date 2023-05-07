@@ -1,10 +1,12 @@
-const { app, BrowserWindow, ipcMain, globalShortcut } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const AccountsManager = require("./launcher/managers/AccountManager");
 const VersionManager = require("./launcher/managers/VersionManager");
 const ConfigManager = require("./launcher/managers/ConfigManager");
+const JavaManager = require("./launcher/managers/JavaManager");
 const LauncherMain = require("./launcher/Launcher");
 const crypto = require("crypto");
 const path = require("path");
+const os = require("os");
 
 const launchOptions = {
   accountObjSelected: "",
@@ -143,6 +145,31 @@ ipcMain.on("getSummary", async (event) => {
   safeOptions = JSON.parse(safeOptions);
   delete safeOptions.accountObjSelected.refreshToken;
   event.returnValue = safeOptions;
+});
+
+ipcMain.on("getOptionsInfo", async (event) => {
+  event.returnValue = {
+    memory: {
+      selected: parseInt(launchOptions.memorySelected.max.replace("G")),
+      max: Math.round(os.totalmem() / (1024 * 1024 * 1024)),
+    },
+    java: { path: await JavaManager.getJavaExecDir() },
+    game: { dir: await ConfigManager.getVariable("rootPath") },
+    javaArgs: process.env._JAVA_OPTIONS,
+  };
+});
+
+ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
+  console.log(
+    await dialog.showOpenDialog({
+      title: isJava
+        ? "Select Java Executable(javaw.exe)"
+        : "Select Minecraft RunDir (.minecraft)",
+      defaultPath: defaultLocation,
+      filters: [isJava ? { name: "Java Executable", extensions: ["exe"] } : {}],
+      properties: [isJava ? "openFile" : "openDirectory"],
+    })
+  );
 });
 
 ipcMain.on("runClient", async (event) => {

@@ -1,6 +1,6 @@
 console.log("Loading renderer");
 
-var _eventHandlers = {}; // somewhere global
+var _eventHandlers = {};
 
 const addListener = (node, event, handler, capture = false) => {
   if (!(event in _eventHandlers)) {
@@ -62,47 +62,59 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (safeState > 1) {
       switchView(currentView, "#welcome");
       if (safeState > 2) {
-        statusVersion.childNodes[1].firstChild.remove();
+        setTimeout(() => {
+          statusVersion.childNodes[1].firstChild.remove();
+          $(statusVersion.childNodes[1]).hide().fadeIn(1000);
+        }, 600);
       }
-      setScreensState("login");
-      statusLogin.childNodes[1].firstChild.remove();
+      setTimeout(() => {
+        setScreensState("login");
+        statusLogin.childNodes[1].firstChild.remove();
+        $(statusLogin.childNodes[1]).hide().fadeIn(1000);
+      }, 600);
     }
   });
   statusVersion.addEventListener("click", () => {
     if (safeState > 2) {
       switchView(currentView, "#versions");
       statusLogin.childNodes[1].firstChild.remove();
-      setScreensState("version");
-      statusVersion.childNodes[1].firstChild.remove();
+      setTimeout(() => {
+        setScreensState("version");
+        statusVersion.childNodes[1].firstChild.remove();
+      }, 600);
     }
   });
 
   const setScreensState = (screen) => {
-    switch (screen) {
-      case "login":
-        safeState = 1;
-        statusLogin.classList.add("text-[#865DFF]");
-        statusVersion.classList.remove("text-[#865DFF]");
-        statusRun.classList.remove("text-[#865DFF]");
-        break;
-      case "version":
-        safeState = 2;
-        statusLogin.classList.remove("text-[#865DFF]");
-        statusVersion.classList.add("text-[#865DFF]");
-        statusRun.classList.remove("text-[#865DFF]");
-        statusLogin.childNodes[1].prepend(checked.cloneNode(true));
-        break;
-      case "run":
-        safeState = 3;
-        statusLogin.classList.remove("text-[#865DFF]");
-        statusVersion.classList.remove("text-[#865DFF]");
-        statusRun.classList.add("text-[#865DFF]");
-        statusVersion.childNodes[1].prepend(checked.cloneNode(true));
-        break;
-    }
+    setTimeout(() => {
+      switch (screen) {
+        case "login":
+          safeState = 1;
+          statusLogin.classList.add("text-[#865DFF]");
+          statusVersion.classList.remove("text-[#865DFF]");
+          statusRun.classList.remove("text-[#865DFF]");
+          break;
+        case "version":
+          safeState = 2;
+          statusLogin.classList.remove("text-[#865DFF]");
+          statusVersion.classList.add("text-[#865DFF]");
+          statusRun.classList.remove("text-[#865DFF]");
+          statusLogin.childNodes[1].prepend(checked.cloneNode(true));
+          $(statusLogin.childNodes[1]).hide().fadeIn(1000);
+          break;
+        case "run":
+          safeState = 3;
+          statusLogin.classList.remove("text-[#865DFF]");
+          statusVersion.classList.remove("text-[#865DFF]");
+          statusRun.classList.add("text-[#865DFF]");
+          statusVersion.childNodes[1].prepend(checked.cloneNode(true));
+          $(statusVersion.childNodes[1]).hide().fadeIn(1000);
+          break;
+      }
+    }, 600);
   };
 
-  switchView("#welcome", "#welcome");
+  switchView("#run", "#run");
   setScreensState("login");
 
   const runClientButton = document.getElementById("runClient");
@@ -118,10 +130,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   dropdownAccountButton.addEventListener("click", async () => {
     accountsList.innerHTML = "";
-    // console.log(await window.electron.getAccounts());
     await window.electron.getAccounts().accounts.forEach((account) => {
       const li = document.createElement("li");
       li.innerHTML = `<a id="selectAccountTrigger" data-mc-uuid="${account.uuid}" class="block cursor-pointer font-bold px-4 py-2 select-text hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"> ${account.displayName}</a>`;
+      // TODO HEAD ICON AND TRASH CAN TO DELETE
       accountsList.appendChild(li);
     });
 
@@ -139,7 +151,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   dropdownVersionButton.addEventListener("click", async () => {
     versionsList.innerHTML = "";
-    // console.log(await window.electron.getLastVersions());
     await window.electron.getLastVersions().forEach((version) => {
       const li = document.createElement("li");
       li.innerHTML = `<a id="selectVerionTrigger" data-mc-uuid="${version}" class="block font-bold px-4 py-2 select-text hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"> ${version}</a>`;
@@ -473,5 +484,38 @@ document.addEventListener("DOMContentLoaded", async () => {
           closeBtn.click();
         });
     }
+  });
+  const gamePath = document.getElementById("gamePath"),
+    gamePathBtn = document.getElementById("gamePathBtn"),
+    javaPath = document.getElementById("javaPath"),
+    javaPathBtn = document.getElementById("javaPathBtn"),
+    ramCount = document.getElementById("ramCount"),
+    ramSlider = document.getElementById("ramSlider"),
+    ramFree = document.getElementById("ramFree"),
+    argsArea = document.getElementById("javaArgs");
+  const info = window.electron.getOptionsInfo();
+
+  gamePath.innerHTML = info.game.dir;
+  javaPath.innerText = info.java.path;
+  ramCount.innerText = info.memory.selected + "G";
+  argsArea.innerText = info.javaArgs;
+  ramSlider.value = info.memory.selected;
+  ramFree.innerText = `Zostało Ci ${
+    info.memory.max - info.memory.selected
+  }G do przeznaczenia`;
+  ramSlider.setAttribute("max", info.memory.max);
+  ramSlider.addEventListener("input", () => {
+    ramCount.innerText = ramSlider.value + "G";
+    ramFree.innerText = `Zostało Ci ${(
+      info.memory.max - ramSlider.value
+    ).toFixed(1)}G do przeznaczenia`;
+  });
+
+  gamePathBtn.addEventListener("click", () => {
+    window.electron.getDirByElectron(false, info.game.dir);
+  });
+
+  javaPathBtn.addEventListener("click", () => {
+    window.electron.getDirByElectron(true, info.java.path);
   });
 });

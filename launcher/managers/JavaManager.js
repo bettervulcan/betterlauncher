@@ -1,9 +1,10 @@
 // TODO IT WILL DOWNLAD JAVA, CHECK LOCATION AND RUN JAR
 const os = require("os");
 const process = require("child_process");
-const ConfigManager = require("./ConfigManager");
+// const ConfigManager = require("./ConfigManager");
+const path = require("path");
 
-const getJavaExec = () => {
+const getJavaExecDir = () => {
   return new Promise((resolve, reject) => {
     if (os.platform() == "win32") {
       process.exec("where java", (err, stdout, stderr) => {
@@ -14,7 +15,7 @@ const getJavaExec = () => {
         if (stdout === "INFO: Could not find files for the given pattern(s).")
           return reject("no java");
         if (stdout.includes("\n")) {
-          return resolve(stdout.split("\n")[0]);
+          return resolve(path.join(stdout.split("\n")[0].replace("\r", "")));
         }
         resolve(stdout, stderr);
       });
@@ -26,7 +27,7 @@ const getJavaExec = () => {
         }
         if (stdout.includes("not found")) return reject("no java");
         if (stdout.includes("\n")) {
-          return resolve(stdout.split("\n")[0]);
+          return resolve(path.join(stdout.split("\n")[0]));
         }
         resolve(stdout, stderr);
       });
@@ -39,3 +40,5 @@ const getJavaExec = () => {
 // (async () => {
 //   console.log(await getJavaExec());
 // })();
+
+module.exports = { getJavaExecDir };

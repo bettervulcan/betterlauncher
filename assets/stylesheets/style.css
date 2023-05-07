@@ -603,10 +603,6 @@ video {
   float: left;
 }
 
-.m-2 {
-  margin: 0.5rem;
-}
-
 .mx-2 {
   margin-left: 0.5rem;
   margin-right: 0.5rem;
@@ -780,12 +776,12 @@ video {
   height: 100vh;
 }
 
-.max-h-\[16px\] {
-  max-height: 16px;
-}
-
 .max-h-full {
   max-height: 100%;
+}
+
+.max-h-2 {
+  max-height: 0.5rem;
 }
 
 .w-3 {
@@ -837,8 +833,16 @@ video {
   max-width: 42rem;
 }
 
-.max-w-\[16px\] {
-  max-width: 16px;
+.max-w-full {
+  max-width: 100%;
+}
+
+.max-w-\[50vw\] {
+  max-width: 50vw;
+}
+
+.max-w-\[25vw\] {
+  max-width: 25vw;
 }
 
 .grow {
@@ -887,12 +891,6 @@ video {
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
-}
-
-.select-text {
-  -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
 }
 
 .resize-none {
@@ -966,6 +964,14 @@ video {
 
 .overflow-x-hidden {
   overflow-x: hidden;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
+.overflow-x-scroll {
+  overflow-x: scroll;
 }
 
 .overflow-y-scroll {
@@ -1087,11 +1093,6 @@ video {
   fill: currentColor;
 }
 
-.object-center {
-  -o-object-position: center;
-     object-position: center;
-}
-
 .p-1 {
   padding: 0.25rem;
 }
@@ -1116,16 +1117,6 @@ video {
   padding: 1.5rem;
 }
 
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
-.px-3 {
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-}
-
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -1141,11 +1132,6 @@ video {
   padding-right: 2rem;
 }
 
-.py-0 {
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
-
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
@@ -1159,11 +1145,6 @@ video {
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem;
-}
-
-.py-3 {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
 }
 
 .text-center {
@@ -1369,6 +1350,20 @@ body {
 }
 
 .scrollbar::-webkit-scrollbar-thumb {
+  background: #ffffff;
+}
+
+.scrollbar-x::-webkit-scrollbar {
+  height: 2px;
+  opacity: 0.5;
+}
+
+.scrollbar-x::-webkit-scrollbar-track {
+  border-radius: 100vh;
+  width: 90%;
+}
+
+.scrollbar-x::-webkit-scrollbar-thumb {
   background: #ffffff;
 }
 
