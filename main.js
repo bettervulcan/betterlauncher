@@ -4,6 +4,7 @@ const VersionManager = require("./launcher/managers/VersionManager");
 const ConfigManager = require("./launcher/managers/ConfigManager");
 const JavaManager = require("./launcher/managers/JavaManager");
 const LauncherMain = require("./launcher/Launcher");
+const process = require("process");
 const crypto = require("crypto");
 const path = require("path");
 const os = require("os");
@@ -61,11 +62,11 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-ipcMain.on("closeWindow", async (event) => {
+ipcMain.on("closeWindow", async () => {
   mainWindow.close();
 });
 
-ipcMain.on("minimalizeWindow", async (event) => {
+ipcMain.on("minimalizeWindow", async () => {
   mainWindow.minimize();
 });
 
@@ -119,25 +120,25 @@ ipcMain.on("selectedVersion", async (event, arg) => {
   console.log("wybrano wersje:", launchOptions.versionNameSelected);
 });
 
-ipcMain.on("getInstalledVersions", async (event, arg) => {
+ipcMain.on("getInstalledVersions", async (event) => {
   event.returnValue = await VersionManager.getInstalledVersions();
 });
 
 ipcMain.on("getVersionsByType", async (event, arg) => {
   const groupedVersions = Object.values(
     await VersionManager.getAvailableVersions(arg)
-  )
-    .map((ver) => ver.name)
-    .reduce((acc, version) => {
-      const majorMinor = version.split(".").slice(0, 2).join(".");
-      if (!acc[majorMinor]) {
-        acc[majorMinor] = [];
-      }
-      acc[majorMinor].push(version);
-      return acc;
-    }, {});
+  );
+  let versionout = [];
+  groupedVersions.forEach((version) => {
+    let mainversion =
+      version.name.split(".")[0] + "." + version.name.split(".")[1];
+    if (!versionout[mainversion]) {
+      versionout[mainversion] = [];
+    }
+    versionout[mainversion].push(version.name);
+  });
 
-  event.returnValue = Object.values(groupedVersions);
+  event.returnValue = Object.values(versionout);
 });
 
 ipcMain.on("getSummary", async (event) => {
@@ -153,26 +154,38 @@ ipcMain.on("getOptionsInfo", async (event) => {
       selected: parseInt(launchOptions.memorySelected.max.replace("G")),
       max: Math.round(os.totalmem() / (1024 * 1024 * 1024)),
     },
-    java: { path: await JavaManager.getJavaExecDir() },
+    java: { path: await JavaManager.getJavaExecPath() },
     game: { dir: await ConfigManager.getVariable("rootPath") },
     javaArgs: process.env._JAVA_OPTIONS,
   };
 });
 
-ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
-  console.log(
-    await dialog.showOpenDialog({
-      title: isJava
-        ? "Select Java Executable(javaw.exe)"
-        : "Select Minecraft RunDir (.minecraft)",
-      defaultPath: defaultLocation,
-      filters: [isJava ? { name: "Java Executable", extensions: ["exe"] } : {}],
-      properties: [isJava ? "openFile" : "openDirectory"],
-    })
-  );
+ipcMain.on("saveOptions", (event, args) => {
+  console.log(args);
+  launchOptions.memorySelected.max = args.ram;
+  // TODO SEND JAVA PATH (args.java) TO JAVA MANAGER (replace the \n to "" on the end)
+  ConfigManager.setVariable(path.join(args.game));
+  // TODO USE CUSTOM/GLOBAL JAVA ARGS
 });
 
-ipcMain.on("runClient", async (event) => {
+ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
+  const dir = await dialog.showOpenDialog({
+    title: isJava
+      ? "Select Java Executable (javaw.exe)"
+      : "Select Minecraft RunDir (.minecraft)",
+    defaultPath: defaultLocation,
+    filters: [isJava ? { name: "Java Executable", extensions: ["exe"] } : {}],
+    properties: [isJava ? "openFile" : "openDirectory"],
+  });
+  if (isJava) {
+    // TODO SEND IT TO JAVA MANAGER
+  } else {
+    ConfigManager.setVariable("rootPath", dir);
+  }
+  event.returnValue = dir;
+});
+
+ipcMain.on("runClient", async () => {
   if (launchOptions.accountObjSelected.premium) {
     await LauncherMain.launchClient(
       launchOptions.accountObjSelected.refreshToken,

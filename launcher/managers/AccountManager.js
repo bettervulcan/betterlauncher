@@ -1,136 +1,113 @@
-const fs = require("fs");
-const path = require("path");
 const ConfigManager = require("./ConfigManager");
 const FileManager = require("./FileManager");
+const path = require("path");
+const fs = require("fs");
 
-var accounts = { accounts: [], lastAccount: "" };
-
-const saveAccounts = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      FileManager.createIfNotExistDir(
-        path.join(await ConfigManager.getVariable("rootPath"), "better")
-      );
-      const accountsJSON = JSON.stringify({
-        accounts: Object.values(accounts.accounts),
-        lastAccount: accounts.lastAccount,
-      });
-      await FileManager.writeToFileOrCreate(
-        path.join(await ConfigManager.getVariable("rootPath"), "better"),
-        "accounts.json",
-        JSON.stringify(JSON.parse(accountsJSON), null, 2)
-      );
-      console.log(
-        `Accounts saved successfuly to ${path.join(
-          await ConfigManager.getVariable("rootPath"),
-          "better",
-          "accounts.json"
-        )}`
-      );
-      return resolve(accounts);
-    } catch (error) {
-      console.error(error);
-      return reject(error);
-    }
-  });
+const accountsFilePath = async () => {
+  const rootPath = await ConfigManager.getVariable("rootPath");
+  return path.join(rootPath, "better", "accounts.json");
 };
 
-const loadAccounts = () => {
-  return new Promise(async (resolve, reject) => {
-    if (!(await isAccountsExist())) {
-      console.log("Accounts doesnt exist");
-      return resolve(await saveAccounts());
-    }
-    try {
-      accounts = JSON.parse(
-        await fs.readFileSync(
-          path.join(
-            await ConfigManager.getVariable("rootPath"),
-            "better",
-            "accounts.json"
-          )
-        )
-      );
-      console.log(
-        `Accounts loaded successfuly from ${path.join(
-          await ConfigManager.getVariable("rootPath"),
-          "better",
-          "accounts.json"
-        )}`
-      );
-      return resolve(accounts);
-    } catch (error) {
-      console.error(error);
-      return reject(error);
-    }
-  });
+const accounts = { accounts: [], lastAccount: "" };
+
+const saveAccounts = async () => {
+  try {
+    const accountsJSON = JSON.stringify(accounts, null, 2);
+    await FileManager.writeToFileOrCreate(
+      await accountsFilePath(),
+      accountsJSON
+    );
+    console.log(`Accounts saved successfully to ${await accountsFilePath()}`);
+    return accounts;
+  } catch (error) {
+    throw new Error(`Error saving accounts.\n${error}`);
+  }
 };
 
-const isAccountsExist = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      return resolve(
-        await fs.existsSync(
-          path.join(
-            await ConfigManager.getVariable("rootPath"),
-            "better",
-            "accounts.json"
-          )
-        )
-      );
-    } catch (error) {
-      return reject(err);
-    }
-  });
+const loadAccounts = async () => {
+  if (!(await isAccountsExist())) {
+    console.log("Accounts doesn't exist");
+    return await saveAccounts();
+  }
+  try {
+    const accountsData = await fs.promises.readFile(await accountsFilePath());
+    Object.assign(accounts, JSON.parse(accountsData));
+    console.log(
+      `Accounts loaded successfully from ${await accountsFilePath()}`
+    );
+    return accounts;
+  } catch (error) {
+    throw new Error("Error loading accounts.");
+  }
 };
 
-const isNewAccount = (accountObj) => {
-  return new Promise((resolve, reject) => {
-    accounts.accounts.forEach((account) => {
-      if (account.uuid === accountObj.uuid) resolve(false);
-    });
-    resolve(true);
-  });
+const isAccountsExist = async () => {
+  try {
+    return fs.existsSync(await accountsFilePath());
+  } catch (error) {
+    throw new Error("Error checking if accounts.json file exists.");
+  }
 };
 
-const addAccount = (accountObj) => {
-  return new Promise(async (resolve, reject) => {
+const isNewAccount = async (accountObj) => {
+  const accountsList = await getAccountsList();
+  return !accountsList.accounts.some(
+    (account) => account.uuid === accountObj.uuid
+  );
+};
+
+const addAccount = async (accountObj) => {
+  try {
     if (await isNewAccount(accountObj)) {
-      await accounts.accounts.push(accountObj);
+      accounts.accounts.push(accountObj);
+      await saveAccounts();
     } else {
-      console.log(accountObj.displayName, "already exist");
+      console.log(accountObj.displayName, "already exists");
     }
-    resolve(await saveAccounts());
-  });
+  } catch (error) {
+    throw new Error("Error adding account to accounts.json file.");
+  }
 };
 
-const getAccountsList = () => {
-  return new Promise((resolve, reject) => {
-    resolve(accounts);
-  });
+const getAccountsList = async () => {
+  try {
+    if (await isAccountsExist()) {
+      const accountsData = await fs.promises.readFile(await accountsFilePath());
+      return JSON.parse(accountsData);
+    } else {
+      return accounts;
+    }
+  } catch (error) {
+    throw new Error("Error getting accounts list from accounts.json file.");
+  }
 };
 
-const getAccountByUUID = (uuid) => {
-  return new Promise((resolve, reject) => {
-    accounts.accounts.forEach((account) => {
-      if (account.uuid === uuid) resolve(account);
-    });
-    reject(`account ${uuid} doesnt exist`);
-  });
+const getAccountByUUID = async (uuid) => {
+  try {
+    const accountsList = await getAccountsList();
+    const account = accountsList.accounts.find(
+      (account) => account.uuid === uuid
+    );
+    if (account) {
+      return account;
+    } else {
+      throw new Error(`Account ${uuid} doesn't exist.`);
+    }
+  } catch (error) {
+    throw new Error("Error getting account by UUID from accounts.json file.");
+  }
 };
 
-const setLastAccount = (uuid) => {
-  return new Promise(async (resolve, reject) => {
+const setLastAccount = async (uuid) => {
+  try {
     accounts.lastAccount = uuid;
-    resolve(await saveAccounts());
-  });
+    await saveAccounts();
+  } catch (error) {
+    throw new Error(
+      `Error setting last account in accounts.json file.\n${error}`
+    );
+  }
 };
-
-// ! tests
-// (async () => {
-//   await loadAccounts();
-//   console.log(accounts);
-// })();
 
 module.exports = {
   loadAccounts,

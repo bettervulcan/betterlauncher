@@ -1,125 +1,121 @@
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
 const ConfigManager = require("./ConfigManager");
 const FileManager = require("./FileManager");
+const axios = require("axios");
+const path = require("path");
+const fs = require("fs");
 
 const VersionManifest =
-    "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json",
-  ForgeManifest = "",
-  FabricManifest = "";
+  "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"; //,ForgeManifest = "",  FabricManifest = "";
 
-const getInstalledVersions = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      if (
-        !(await fs.existsSync(
-          path.join(await ConfigManager.getVariable("rootPath"), "versions")
-        ))
+const getInstalledVersions = async () => {
+  try {
+    if (
+      !(await fs.existsSync(
+        path.join(await ConfigManager.getVariable("rootPath"), "versions")
+      ))
+    )
+      return [];
+    const versions = (
+      await fs.readdirSync(
+        path.join(await ConfigManager.getVariable("rootPath"), "versions"),
+        { withFileTypes: true }
       )
-        return resolve([]);
-      const versions = (
-        await fs.readdirSync(
-          path.join(await ConfigManager.getVariable("rootPath"), "versions"),
-          { withFileTypes: true }
-        )
-      )
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name);
-      resolve(versions);
-    } catch (error) {
-      reject(error);
-    }
-  });
+    )
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
+    return versions;
+  } catch (error) {
+    throw new Error(`Error getting installed versions.`);
+  }
 };
 
-const getAvailableVersions = (type) => {
-  return new Promise(async (resolve, reject) => {
-    axios
-      .get(VersionManifest)
-      .then((res) => {
-        let versionList = [];
-        res.data.versions.forEach((version) => {
-          if (version.type != type) return;
-          versionList[version.id] = { name: version.id, url: version.url };
-        });
-        resolve(versionList);
-      })
-      .catch(reject);
-  });
+const getAvailableVersions = async (type) => {
+  try {
+    const res = await axios.get(VersionManifest);
+
+    let versionList = [];
+    res.data.versions.forEach((version) => {
+      if (version.type != type) return;
+      versionList[version.id] = { name: version.id, url: version.url };
+    });
+    return versionList;
+  } catch (error) {
+    throw new Error(`Error getting avalible ${type} versions.\n${error}`);
+  }
 };
 
 const downloadVersionJson = (versionObject) => {
-  return new Promise(async (resolve, reject) => {
-    axios({
-      method: "get",
-      url: versionObject.url,
-      responseType: "stream",
-    })
-      .then(async (response) => {
-        await FileManager.createIfNotExistFile(
-          (await ConfigManager.getVariable("rootPath")) +
-            "\\versions\\" +
-            versionObject.name +
-            "\\",
+  axios({
+    method: "get",
+    url: versionObject.url,
+    responseType: "stream",
+  })
+    .then(async (response) => {
+      await FileManager.createIfNotExistFile(
+        path.join(
+          (await ConfigManager.getVariable("rootPath")) + "versions",
+          versionObject.name,
           versionObject.name + ".json"
-        );
-        await response.data.pipe(
-          fs.createWriteStream(
-            path.join(
-              await ConfigManager.getVariable("rootPath"),
-              "versions",
-              versionObject.name,
-              versionObject.name + ".json"
-            )
+        )
+      );
+      await response.data.pipe(
+        fs.createWriteStream(
+          path.join(
+            await ConfigManager.getVariable("rootPath"),
+            "versions",
+            versionObject.name,
+            versionObject.name + ".json"
           )
-        );
-        resolve();
-      })
-      .catch(reject);
-  });
+        )
+      );
+      return;
+    })
+    .catch(() => {
+      throw new Error(`Error downloading ${versionObject.url}`);
+    });
 };
 
-const updateConfig = (lastVersions) => {
-  return new Promise(async (resolve, reject) => {
-    await ConfigManager.setVariable("lastVersions", lastVersions).catch(reject);
-    resolve(await ConfigManager.saveConfig().catch(reject));
-  });
+const updateConfig = async (lastVersions) => {
+  await ConfigManager.setVariable("lastVersions", lastVersions);
+  return await ConfigManager.saveConfig();
 };
 
-const addLastVersion = (version) => {
-  return new Promise(async (resolve, reject) => {
-    const lastVersions = await getLastVersions();
-    const index = lastVersions.indexOf(version);
-    if (index !== -1) {
-      lastVersions.splice(index, 1);
-      lastVersions.unshift(version);
-      await updateConfig(lastVersions);
-    } else {
-      if (lastVersions.length >= 3) {
-        lastVersions.pop();
-      }
-      lastVersions.unshift(version);
-      await updateConfig(lastVersions);
+const addLastVersion = async (version) => {
+  const lastVersions = await getLastVersions();
+  const index = lastVersions.indexOf(version);
+  if (index !== -1) {
+    lastVersions.splice(index, 1);
+    lastVersions.unshift(version);
+    await updateConfig(lastVersions);
+  } else {
+    if (lastVersions.length >= 3) {
+      lastVersions.pop();
     }
-    resolve(lastVersions);
-  });
+    lastVersions.unshift(version);
+    await updateConfig(lastVersions);
+  }
+  return lastVersions;
 };
 
-const getLastVersions = () => {
-  return new Promise(async (resolve, reject) => {
-    const versionsList = await ConfigManager.getVariable("lastVersions").catch(
-      reject
-    );
-    if (versionsList) return resolve(versionsList);
-    resolve([]);
-  });
+const getLastVersions = async () => {
+  const versionsList = await ConfigManager.getVariable("lastVersions");
+  if (versionsList) return versionsList;
+  return [];
 };
 
-const getVersionNumberByName = (name) => {
-  return new Promise(async (resolve, reject) => {
-    if (
-      fs.existsSync(
+const getVersionNumberByName = async (name) => {
+  if (
+    fs.existsSync(
+      path.join(
+        await ConfigManager.getVariable("rootPath"),
+        "versions",
+        name,
+        name + ".json"
+      )
+    )
+  ) {
+    const versionJson = JSON.parse(
+      await fs.readFileSync(
         path.join(
           await ConfigManager.getVariable("rootPath"),
           "versions",
@@ -127,23 +123,12 @@ const getVersionNumberByName = (name) => {
           name + ".json"
         )
       )
-    ) {
-      const versionJson = JSON.parse(
-        await fs.readFileSync(
-          path.join(
-            await ConfigManager.getVariable("rootPath"),
-            "versions",
-            name,
-            name + ".json"
-          )
-        )
-      );
-      if (versionJson.inheritsFrom) return resolve(versionJson.inheritsFrom);
-      // TODO forge number version from json
-      if (versionJson.id) return resolve(versionJson.id);
-    }
-    resolve(name);
-  });
+    );
+    if (versionJson.inheritsFrom) return versionJson.inheritsFrom;
+    // TODO forge number version from json
+    if (versionJson.id) return versionJson.id;
+  }
+  return name;
 };
 
 // ! tests

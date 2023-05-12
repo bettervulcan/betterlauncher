@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 600);
   };
 
-  switchView("#run", "#run");
+  switchView("#welcome", "#welcome");
   setScreensState("login");
 
   const runClientButton = document.getElementById("runClient");
@@ -372,7 +372,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       .forEach((finalVersionTrigger) => {
         try {
           removeAllListeners(finalVersionTrigger, "click");
-        } catch (error) {}
+        } catch (error) {
+          /*no listeners for this element, for now */
+        }
         addListener(finalVersionTrigger, "click", () => {
           if (finalVersionTrigger.dataset.version) {
             window.electron.selectVersion(finalVersionTrigger.dataset.version);
@@ -446,7 +448,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           fetchedName = nicknameInput.value;
           res.json().then((data) => {
             console.log(data);
-            if (data.hasOwnProperty("id")) {
+            if (Object.hasOwn(data, "id")) {
               premiumNickAnim.classList.add("animate-pulse");
               premiumNickText.classList.add("text-gray-400");
               premiumNickText.classList.remove("text-[#E384FF]");
@@ -459,7 +461,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
           });
         })
-        .catch((err) => {
+        .catch(() => {
           premiumNickAnim.classList.remove("animate-pulse");
           premiumNickText.classList.add("text-gray-400");
           premiumNickText.classList.remove("text-[#E384FF]");
@@ -518,4 +520,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   javaPathBtn.addEventListener("click", () => {
     window.electron.getDirByElectron(true, info.java.path);
   });
+
+  document
+    .querySelector(`[data-modal-hide="options"]`)
+    .addEventListener("click", () => {
+      window.electron.saveOptions({
+        ram: ramSlider.value + "G",
+        java: javaPath.innerText,
+        game: gamePath.innerText,
+        args: argsArea.innerText,
+      });
+    });
 });

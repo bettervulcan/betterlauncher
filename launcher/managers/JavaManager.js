@@ -1,10 +1,9 @@
 // TODO IT WILL DOWNLAD JAVA, CHECK LOCATION AND RUN JAR
-const os = require("os");
 const process = require("child_process");
-// const ConfigManager = require("./ConfigManager");
 const path = require("path");
+const os = require("os");
 
-const getJavaExecDir = () => {
+const getJavaExecPath = () => {
   return new Promise((resolve, reject) => {
     if (os.platform() == "win32") {
       process.exec("where java", (err, stdout, stderr) => {
@@ -15,7 +14,7 @@ const getJavaExecDir = () => {
         if (stdout === "INFO: Could not find files for the given pattern(s).")
           return reject("no java");
         if (stdout.includes("\n")) {
-          return resolve(path.join(stdout.split("\n")[0].replace("\r", "")));
+          return resolve(stdout.split("\n")[0]);
         }
         resolve(stdout, stderr);
       });
@@ -27,13 +26,24 @@ const getJavaExecDir = () => {
         }
         if (stdout.includes("not found")) return reject("no java");
         if (stdout.includes("\n")) {
-          return resolve(path.join(stdout.split("\n")[0]));
+          return resolve(stdout.split("\n")[0]);
         }
         resolve(stdout, stderr);
       });
-    } else {
     }
   });
+};
+
+const executeJar = async (jarPath, javaArgs) => {
+  console.log(jarPath, javaArgs);
+  process
+    .exec(
+      `"${path.join(await getJavaExecPath())}" -jar ${path.join(
+        jarPath
+      )} ${javaArgs}`,
+      { detached: true }
+    )
+    .unref();
 };
 
 // ! test
@@ -41,4 +51,4 @@ const getJavaExecDir = () => {
 //   console.log(await getJavaExec());
 // })();
 
-module.exports = { getJavaExecDir };
+module.exports = { getJavaExecPath, executeJar };
