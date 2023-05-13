@@ -604,12 +604,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     ).toFixed(1)}G do przeznaczenia`;
   });
 
-  gamePathBtn.addEventListener("click", () => {
-    window.electron.getDirByElectron(false, info.game.dir);
+  gamePathBtn.addEventListener("click", async () => {
+    gamePath.innerText = await window.electron.getDirByElectron(
+      false,
+      info.game.dir
+    ).filePaths[0];
   });
 
-  javaPathBtn.addEventListener("click", () => {
-    window.electron.getDirByElectron(true, info.java.path);
+  javaPathBtn.addEventListener("click", async () => {
+    javaPath.innerText = await window.electron.getDirByElectron(
+      true,
+      info.java.path
+    ).filePaths[0];
   });
 
   document

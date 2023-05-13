@@ -6,7 +6,7 @@ contextBridge.exposeInMainWorld("electron", {
   close: () => ipcRenderer.send("closeWindow"),
   minimalize: () => ipcRenderer.send("minimalizeWindow"),
   getOptionsInfo: () => ipcRenderer.sendSync("getOptionsInfo"),
-  saveOptions: (options) => ipcRenderer.sendSync("saveOptions", options),
+  saveOptions: (options) => ipcRenderer.send("saveOptions", options),
   openLoginMS: () => ipcRenderer.send("openLoginMS"),
   storeLoginStatus: (func) => {
     ipcRenderer.on("statusLoginMS", func);

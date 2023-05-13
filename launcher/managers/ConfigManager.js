@@ -22,17 +22,14 @@ let config = {
   lastVersions: [],
 };
 
-const saveConfig = async () => {
+const saveConfig = async (configPath = config.rootPath) => {
   try {
     await FileManager.writeToFileOrCreate(
-      path.join(config.rootPath, "better.config"),
+      path.join(configPath, "better.config"),
       JSON.stringify(config)
     );
     console.log(
-      `Config saved successfully to  ${path.join(
-        config.rootPath,
-        "better.config"
-      )}`
+      `Config saved successfully to  ${path.join(configPath, "better.config")}`
     );
     return config;
   } catch (error) {

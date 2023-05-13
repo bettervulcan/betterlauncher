@@ -40,7 +40,7 @@ const createWindow = () => {
       devTools: true,
       preload: path.join(__dirname, "preload.js"),
     },
-    icon: path.join(__dirname, "assets", "img", "icon.png"),
+    icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: "BetterLauncher",
   });
   mainWindow.setTitle("BetterLauncher");
@@ -49,6 +49,17 @@ const createWindow = () => {
   // mainWindow.openDevTools();
   ConfigManager.loadConfig();
   AccountsManager.loadAccounts();
+
+  const client = require("discord-rich-presence")("1106998157772075058");
+
+  client.updatePresence({
+    state: "Launching Minecraft...",
+    details: "😀",
+    startTimestamp: Date.now(),
+    largeImageKey: "logo",
+    smallImageKey: "mc-launcher",
+    instance: true,
+  });
 };
 
 app.whenReady().then(() => {
@@ -60,6 +71,7 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
+  ConfigManager.saveConfig();
   if (process.platform !== "darwin") app.quit();
 });
 
@@ -195,7 +207,7 @@ ipcMain.on("getVersionsByType", async (event, arg) => {
       });
       break;
   }
-  console.log(Object.values(versionout));
+  // console.log(Object.values(versionout));
   event.returnValue = Object.values(versionout);
 });
 
@@ -222,7 +234,12 @@ ipcMain.on("saveOptions", (event, args) => {
   console.log(args);
   launchOptions.memorySelected.max = args.ram;
   // TODO SEND JAVA PATH (args.java) TO JAVA MANAGER (replace the \n to "" on the end)
-  ConfigManager.setVariable(path.join(args.game));
+  if (ConfigManager.getVariable("rootPath") !== path.join(args.game)) {
+    const oldPath = ConfigManager.getVariable("rootPath");
+    ConfigManager.setVariable("rootPath", path.join(args.game));
+    ConfigManager.saveConfig(oldPath);
+    ConfigManager.saveConfig();
+  }
   // TODO USE CUSTOM/GLOBAL JAVA ARGS
 });
 
@@ -235,11 +252,6 @@ ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
     filters: [isJava ? { name: "Java Executable", extensions: ["exe"] } : {}],
     properties: [isJava ? "openFile" : "openDirectory"],
   });
-  if (isJava) {
-    // TODO SEND IT TO JAVA MANAGER
-  } else {
-    ConfigManager.setVariable("rootPath", dir);
-  }
   event.returnValue = dir;
 });
 
