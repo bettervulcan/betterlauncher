@@ -285,6 +285,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     secondTable.appendChild(button);
   };
 
+  const addSecondTableVersionOF = (version) => {
+    const button = document.createElement("button");
+    secondTable.style.display = "block";
+    button.className =
+      "relative inline-flex items-center w-full px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
+    button.innerText = `${version}`;
+    button.dataset.mc = version.split("_")[0];
+    button.dataset.optifine = version.split("_")[1];
+    button.id = "optifineDownloadTrigger";
+    secondTable.appendChild(button);
+  };
+
   const clearSecondTable = () => {
     secondTable.style.display = "none";
     secondTable.innerHTML = "";
@@ -306,9 +318,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         clearSecondTable();
         window.electron.getVersionsByType("release").forEach((version) => {
           addFirstTableVersion(version[version.length - 1]);
-          version.forEach((test) => {
-            console.log(version[version.length - 1], test);
-          });
           document
             .querySelectorAll("#secondTableTrigger")
             .forEach((trigger) => {
@@ -337,12 +346,45 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("snapshot");
         clearFirstTable();
         clearSecondTable();
+        window.electron.getVersionsByType("snapshot").forEach((version) => {
+          if (version[version.length - 1].includes("w")) {
+            addFirstTableVersion(
+              version[version.length - 1].split("w")[0] + "w"
+            );
+          } else {
+            addFirstTableVersion(version[version.length - 1].split("-")[0]);
+          }
+          document
+            .querySelectorAll("#secondTableTrigger")
+            .forEach((trigger) => {
+              trigger.addEventListener("click", () => {
+                (async () => {
+                  clearSecondTable();
+                  setTimeout(() => {
+                    version.forEach((subVer) => {
+                      if (
+                        version[version.length - 1].includes(
+                          trigger.dataset.preVersion
+                        )
+                      ) {
+                        addSecondTableVersion(subVer);
+                      }
+                    });
+                    refreshSelectVersionTriggers();
+                  }, 100);
+                })();
+              });
+            });
+        });
         refreshSelectVersionTriggers();
         break;
       case "alpha":
         console.log("alpha");
         clearFirstTable();
         clearSecondTable();
+        window.electron.getVersionsByType("alpha").forEach((version) => {
+          addFirstTableVersion(version[0], true);
+        });
         refreshSelectVersionTriggers();
         break;
       case "fabric":
@@ -361,6 +403,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("optifine");
         clearFirstTable();
         clearSecondTable();
+        window.electron.getVersionsByType("optifine").forEach((version) => {
+          addFirstTableVersion(version[version.length - 1].split("_")[0]);
+          document
+            .querySelectorAll("#secondTableTrigger")
+            .forEach((trigger) => {
+              trigger.addEventListener("click", () => {
+                (async () => {
+                  clearSecondTable();
+                  setTimeout(() => {
+                    version.forEach((subVer) => {
+                      if (
+                        version[version.length - 1].includes(
+                          trigger.dataset.preVersion
+                        )
+                      ) {
+                        addSecondTableVersionOF(subVer);
+                      }
+                    });
+                    refreshSelectVersionTriggers();
+                  }, 100);
+                })();
+              });
+            });
+        });
         refreshSelectVersionTriggers();
         break;
     }
@@ -378,6 +444,31 @@ document.addEventListener("DOMContentLoaded", async () => {
         addListener(finalVersionTrigger, "click", () => {
           if (finalVersionTrigger.dataset.version) {
             window.electron.selectVersion(finalVersionTrigger.dataset.version);
+            document
+              .querySelectorAll(`[data-modal-hide="staticModal"]`)
+              .forEach((closeBtn) => {
+                closeBtn.click();
+              });
+          }
+        });
+      });
+    document
+      .querySelectorAll("#optifineDownloadTrigger")
+      .forEach((optifineDownloadTrigger) => {
+        try {
+          removeAllListeners(optifineDownloadTrigger, "click");
+        } catch (error) {
+          /*no listeners for this element, for now */
+        }
+        addListener(optifineDownloadTrigger, "click", () => {
+          if (
+            optifineDownloadTrigger.dataset.mc &&
+            optifineDownloadTrigger.dataset.optifine
+          ) {
+            window.electron.downloadOptifine(
+              optifineDownloadTrigger.dataset.mc,
+              optifineDownloadTrigger.dataset.optifine
+            );
             document
               .querySelectorAll(`[data-modal-hide="staticModal"]`)
               .forEach((closeBtn) => {

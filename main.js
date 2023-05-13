@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const AccountsManager = require("./launcher/managers/AccountManager");
 const VersionManager = require("./launcher/managers/VersionManager");
+const OptifineScraper = require("./launcher/utils/OptifineScraper");
 const ConfigManager = require("./launcher/managers/ConfigManager");
 const JavaManager = require("./launcher/managers/JavaManager");
 const LauncherMain = require("./launcher/Launcher");
@@ -125,19 +126,76 @@ ipcMain.on("getInstalledVersions", async (event) => {
 });
 
 ipcMain.on("getVersionsByType", async (event, arg) => {
-  const groupedVersions = Object.values(
-    await VersionManager.getAvailableVersions(arg)
-  );
+  let groupedVersions = [];
+  if (arg == "alpha") {
+    groupedVersions = Object.values(
+      await VersionManager.getAvailableVersions("old_alpha")
+    ).concat(
+      Object.values(await VersionManager.getAvailableVersions("old_beta"))
+    );
+  } else if (arg == "optifine") {
+    groupedVersions = Object.values(await OptifineScraper.scrapSite());
+  } else {
+    groupedVersions = Object.values(
+      await VersionManager.getAvailableVersions(arg)
+    );
+  }
   let versionout = [];
-  groupedVersions.forEach((version) => {
-    let mainversion =
-      version.name.split(".")[0] + "." + version.name.split(".")[1];
-    if (!versionout[mainversion]) {
-      versionout[mainversion] = [];
-    }
-    versionout[mainversion].push(version.name);
-  });
-
+  switch (arg) {
+    case "release":
+      groupedVersions.forEach((version) => {
+        let mainversion =
+          version.name.split(".")[0] + "." + version.name.split(".")[1];
+        if (!versionout[mainversion]) {
+          versionout[mainversion] = [];
+        }
+        versionout[mainversion].push(version.name);
+      });
+      break;
+    case "snapshot":
+      groupedVersions.forEach((version) => {
+        if (version.name.includes("w")) {
+          let mainversion = version.name.split("w")[0];
+          if (!versionout[mainversion]) {
+            versionout[mainversion] = [];
+          }
+          versionout[mainversion].push(version.name);
+        } else if (version.name.includes("-")) {
+          let mainversion = version.name.split("-")[0];
+          if (!versionout[mainversion]) {
+            versionout[mainversion] = [];
+          }
+          versionout[mainversion].push(version.name);
+        } else {
+          let mainversion = version.name;
+          if (!versionout[mainversion]) {
+            versionout[mainversion] = [];
+          }
+          versionout[mainversion].push(version.name);
+        }
+      });
+      break;
+    case "optifine":
+      groupedVersions.forEach((version) => {
+        version = Object.values(version);
+        if (!versionout[version[0].mc]) {
+          versionout[version[0].mc] = [];
+        }
+        version.forEach((subVer) => {
+          versionout[version[0].mc].push(`${subVer.mc}_${subVer.optifine}`);
+        });
+      });
+      break;
+    default:
+      groupedVersions.forEach((version) => {
+        if (!versionout[version.name]) {
+          versionout[version.name] = [];
+        }
+        versionout[version.name].push(version.name);
+      });
+      break;
+  }
+  console.log(Object.values(versionout));
   event.returnValue = Object.values(versionout);
 });
 
