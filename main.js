@@ -56,6 +56,7 @@ const createWindow = () => {
       mainWindow.webContents.on("did-finish-load", () => {
         mainWindow.webContents.send(
           "statusDiscord",
+          dcUser.username,
           `https://cdn.discordapp.com/avatars/${dcUser.id}/${dcUser.avatar}?size=24`
         );
       });
@@ -138,6 +139,10 @@ ipcMain.on("selectedVersion", async (event, arg) => {
 
 ipcMain.on("getInstalledVersions", async (event) => {
   event.returnValue = await VersionManager.getInstalledVersions();
+});
+
+ipcMain.on("disconnectRPC", async () => {
+  DiscordRPC.disconnectRPC();
 });
 
 ipcMain.on("getVersionsByType", async (event, arg) => {

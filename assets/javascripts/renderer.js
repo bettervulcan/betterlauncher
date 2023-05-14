@@ -640,7 +640,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
 
-  window.electron.storeDiscordInfo((event, data) => {
-    document.getElementById("discord-pic").src = data;
+  window.electron.storeDiscordInfo((event, username, link) => {
+    document.getElementById("discord-pic").src = link;
+    document.getElementById("discordNick").innerText = username;
+    document.getElementById("disconnectRPC").addEventListener("click", () => {
+      window.electron.disconnectRPC();
+      document.getElementById("discord-pic").click();
+    });
   });
 });

@@ -65,4 +65,13 @@ const setupRPC = (callback) => {
   }
 };
 
-module.exports = { setupRPC };
+const disconnectRPC = () => {
+  try {
+    rpc.destroy();
+    return;
+  } catch (e) {
+    throw new Error(`Error disconnecting discord rpc.\n${e}`);
+  }
+};
+
+module.exports = { setupRPC, disconnectRPC };

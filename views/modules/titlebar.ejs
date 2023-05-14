@@ -107,7 +107,33 @@
   <div id="drag-region">
     <div id="discord">
       <div class="mt-1 ml-1 w-6 h-6 items-center inline-flex">
-        <img id="discord-pic" src="" alt="" class="rounded-full" />
+        <img
+          id="discord-pic"
+          type="button"
+          data-dropdown-toggle="userDropdown"
+          data-dropdown-placement="bottom-start"
+          class="rounded-full relative z-50"
+          src=""
+          alt="User dropdown"
+        />
+      </div>
+
+      <div
+        id="userDropdown"
+        class="z-10 bg-[#865dff] hidden divide-y divide-gray-100 rounded-lg shadow-2xl bg w-44 animate-fade-right"
+      >
+        <div
+          class="px-4 py-2 text-sm text-gray-900 dark:text-white transition-all"
+        >
+          <div id="discordNick" class="ml-4">LOADING...</div>
+        </div>
+        <div
+          id="disconnectRPC"
+          class="flex justify-center items-center hover:bg-[#171621] transition-all rounded-b-lg"
+        >
+          <i class="fa-solid fa-power-off"></i>
+          <a class="block px-4 py-2 text-sm text-white">Rozłącz</a>
+        </div>
       </div>
     </div>
     <div id="window-title">

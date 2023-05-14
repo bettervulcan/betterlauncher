@@ -6,10 +6,11 @@ contextBridge.exposeInMainWorld("electron", {
   close: () => ipcRenderer.send("closeWindow"),
   minimalize: () => ipcRenderer.send("minimalizeWindow"),
   getOptionsInfo: () => ipcRenderer.sendSync("getOptionsInfo"),
-  storeDiscordInfo: (user) => {
-    ipcRenderer.on("statusDiscord", user);
+  storeDiscordInfo: (username, link) => {
+    ipcRenderer.on("statusDiscord", username, link);
   },
   saveOptions: (options) => ipcRenderer.send("saveOptions", options),
+  disconnectRPC: () => ipcRenderer.send("disconnectRPC"),
   openLoginMS: () => ipcRenderer.send("openLoginMS"),
   storeLoginStatus: (status) => {
     ipcRenderer.on("statusLoginMS", status);
