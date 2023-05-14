@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       setTimeout(() => {
         setScreensState("login");
+        safeState = 1;
         statusLogin.childNodes[1].firstChild.remove();
         $(statusLogin.childNodes[1]).hide().fadeIn(1000);
       }, 600);
@@ -80,6 +81,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       statusLogin.childNodes[1].firstChild.remove();
       setTimeout(() => {
         setScreensState("version");
+        safeState = 2;
         statusVersion.childNodes[1].firstChild.remove();
       }, 600);
     }
@@ -89,13 +91,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     setTimeout(() => {
       switch (screen) {
         case "login":
-          safeState = 1;
           statusLogin.classList.add("text-[#865DFF]");
           statusVersion.classList.remove("text-[#865DFF]");
           statusRun.classList.remove("text-[#865DFF]");
           break;
         case "version":
-          safeState = 2;
           statusLogin.classList.remove("text-[#865DFF]");
           statusVersion.classList.add("text-[#865DFF]");
           statusRun.classList.remove("text-[#865DFF]");
@@ -103,7 +103,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           $(statusLogin.childNodes[1]).hide().fadeIn(1000);
           break;
         case "run":
-          safeState = 3;
           statusLogin.classList.remove("text-[#865DFF]");
           statusVersion.classList.remove("text-[#865DFF]");
           statusRun.classList.add("text-[#865DFF]");
@@ -116,6 +115,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   switchView("#welcome", "#welcome");
   setScreensState("login");
+  safeState = 1;
 
   const runClientButton = document.getElementById("runClient");
   const openLoginMS = document.getElementById("openLoginMS");
@@ -140,11 +140,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectAccountTriggers = document.querySelectorAll(
       "#selectAccountTrigger"
     );
+
     selectAccountTriggers.forEach((selectAccountTrigger) => {
       selectAccountTrigger.addEventListener("click", () => {
-        window.electron.selectAccount(selectAccountTrigger.dataset.mcUuid);
-        switchView(currentView, "#versions");
-        setScreensState("version");
+        if (safeState < 2) {
+          window.electron.selectAccount(selectAccountTrigger.dataset.mcUuid);
+          switchView(currentView, "#versions");
+          setScreensState("version");
+          safeState = 2;
+        }
       });
     });
   });
@@ -162,16 +166,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     selectVersionTriggers.forEach((selectVersionTrigger) => {
       selectVersionTrigger.addEventListener("click", () => {
-        window.electron.selectVersion(selectVersionTrigger.dataset.mcUuid);
-        switchView(currentView, "#run");
-        setScreensState("run");
-        const summary = window.electron.getSummary();
-        document.getElementById(
-          "dynamicVersion"
-        ).innerText = `Uruchom ${summary.versionNameSelected}`;
-        document.getElementById(
-          "dynamicPlayer"
-        ).innerText = `Uruchamiasz grę jako ${summary.accountObjSelected.displayName}`;
+        if (safeState < 3) {
+          window.electron.selectVersion(selectVersionTrigger.dataset.mcUuid);
+          switchView(currentView, "#run");
+          setScreensState("run");
+          safeState = 3;
+          const summary = window.electron.getSummary();
+          document.getElementById(
+            "dynamicVersion"
+          ).innerText = `Uruchom ${summary.versionNameSelected}`;
+          document.getElementById(
+            "dynamicPlayer"
+          ).innerText = `Uruchamiasz grę jako ${summary.accountObjSelected.displayName}`;
+        }
       });
     });
   });
@@ -605,17 +612,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   gamePathBtn.addEventListener("click", async () => {
-    gamePath.innerText = await window.electron.getDirByElectron(
+    const userSelect = await window.electron.getDirByElectron(
       false,
       info.game.dir
-    ).filePaths[0];
+    );
+    if (userSelect.canceled) return;
+    gamePath.innerText = userSelect.filePaths[0];
   });
 
   javaPathBtn.addEventListener("click", async () => {
-    javaPath.innerText = await window.electron.getDirByElectron(
+    const userSelect = await window.electron.getDirByElectron(
       true,
       info.java.path
-    ).filePaths[0];
+    );
+    if (userSelect.canceled) return;
+    javaPath.innerText = userSelect.filePaths[0];
   });
 
   document
@@ -630,7 +641,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
   window.electron.storeDiscordInfo((event, data) => {
-    console.log(data);
     document.getElementById("discord-pic").src = data;
   });
 });
