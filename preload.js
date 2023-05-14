@@ -6,10 +6,13 @@ contextBridge.exposeInMainWorld("electron", {
   close: () => ipcRenderer.send("closeWindow"),
   minimalize: () => ipcRenderer.send("minimalizeWindow"),
   getOptionsInfo: () => ipcRenderer.sendSync("getOptionsInfo"),
+  storeDiscordInfo: (user) => {
+    ipcRenderer.on("statusDiscord", user);
+  },
   saveOptions: (options) => ipcRenderer.send("saveOptions", options),
   openLoginMS: () => ipcRenderer.send("openLoginMS"),
-  storeLoginStatus: (func) => {
-    ipcRenderer.on("statusLoginMS", func);
+  storeLoginStatus: (status) => {
+    ipcRenderer.on("statusLoginMS", status);
   },
   getAccounts: () => ipcRenderer.sendSync("getAccounts"),
   getLastVersions: () => ipcRenderer.sendSync("getLastVersions"),

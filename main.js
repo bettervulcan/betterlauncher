@@ -4,6 +4,7 @@ const VersionManager = require("./launcher/managers/VersionManager");
 const OptifineScraper = require("./launcher/utils/OptifineScraper");
 const ConfigManager = require("./launcher/managers/ConfigManager");
 const JavaManager = require("./launcher/managers/JavaManager");
+const DiscordRPC = require("./launcher/utils/DiscordRPC");
 const LauncherMain = require("./launcher/Launcher");
 const process = require("process");
 const crypto = require("crypto");
@@ -33,7 +34,8 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     height: Math.round(height * 0.8),
     width: Math.round(width * 0.7),
-    // frame: false,
+    resizable: false,
+    frame: false,
     webPreferences: {
       enableRemoteModule: false,
       contextIsolation: true,
@@ -46,20 +48,21 @@ const createWindow = () => {
   mainWindow.setTitle("BetterLauncher");
   mainWindow.loadFile(path.join(__dirname, "views", "main.ejs"));
 
-  // mainWindow.openDevTools();
+  //mainWindow.openDevTools();
   ConfigManager.loadConfig();
   AccountsManager.loadAccounts();
-
-  const client = require("discord-rich-presence")("1106998157772075058");
-
-  client.updatePresence({
-    state: "Launching Minecraft...",
-    details: "😀",
-    startTimestamp: Date.now(),
-    largeImageKey: "logo",
-    smallImageKey: "mc-launcher",
-    instance: true,
-  });
+  try {
+    DiscordRPC.setupRPC((dcUser) => {
+      mainWindow.webContents.on("did-finish-load", () => {
+        mainWindow.webContents.send(
+          "statusDiscord",
+          `https://cdn.discordapp.com/avatars/${dcUser.id}/${dcUser.avatar}?size=24`
+        );
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 app.whenReady().then(() => {

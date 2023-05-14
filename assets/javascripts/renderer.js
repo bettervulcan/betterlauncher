@@ -628,4 +628,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         args: argsArea.innerText,
       });
     });
+
+  window.electron.storeDiscordInfo((event, data) => {
+    console.log(data);
+    document.getElementById("discord-pic").src = data;
+  });
 });
