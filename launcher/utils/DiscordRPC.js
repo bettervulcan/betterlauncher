@@ -10,7 +10,7 @@ const setupRPC = (callback) => {
   try {
     rpc.on("ready", async () => {
       console.log(`Connected to Discord as ${rpc.user.username}`);
-      callback(rpc.user);
+      callback(true, rpc.user);
       let emojis = ["😀", "🌳", "⛏️", "🗡️", "🛖", "🐉", "🔥", "💀", "🪁", "💎"],
         emojiIndex = 0,
         startTimestamp = Date.now();
@@ -58,7 +58,8 @@ const setupRPC = (callback) => {
     });
 
     rpc.login({ clientId }).catch((err) => {
-      throw err;
+      callback(false, undefined);
+      throw new Error(`Error login rpc.\n${err}`);
     });
   } catch (error) {
     throw new Error(`Error setuping discord rpc.\n${error}`);

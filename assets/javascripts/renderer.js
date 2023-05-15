@@ -640,12 +640,20 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     });
 
-  window.electron.storeDiscordInfo((event, username, link) => {
-    document.getElementById("discord-pic").src = link;
+  window.electron.storeDiscordInfo((event, success, username, link) => {
+    if (!success) {
+      document.getElementById("discord").innerHTML = "";
+      return;
+    }
+    document.getElementById("discordPic").classList.remove("hidden");
+    document.getElementById("discordPic").src = link;
     document.getElementById("discordNick").innerText = username;
     document.getElementById("disconnectRPC").addEventListener("click", () => {
       window.electron.disconnectRPC();
-      document.getElementById("discord-pic").click();
+      document.getElementById("discordPic").click();
+      $("#discordPic").fadeOut(150, () => {
+        document.getElementById("discord").innerHTML = "";
+      });
     });
   });
 });

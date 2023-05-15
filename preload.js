@@ -6,8 +6,8 @@ contextBridge.exposeInMainWorld("electron", {
   close: () => ipcRenderer.send("closeWindow"),
   minimalize: () => ipcRenderer.send("minimalizeWindow"),
   getOptionsInfo: () => ipcRenderer.sendSync("getOptionsInfo"),
-  storeDiscordInfo: (username, link) => {
-    ipcRenderer.on("statusDiscord", username, link);
+  storeDiscordInfo: (success, username, link) => {
+    ipcRenderer.on("statusDiscord", success, username, link);
   },
   saveOptions: (options) => ipcRenderer.send("saveOptions", options),
   disconnectRPC: () => ipcRenderer.send("disconnectRPC"),

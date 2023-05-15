@@ -52,13 +52,18 @@ const createWindow = () => {
   ConfigManager.loadConfig();
   AccountsManager.loadAccounts();
   try {
-    DiscordRPC.setupRPC((dcUser) => {
+    DiscordRPC.setupRPC((success, dcUser) => {
       mainWindow.webContents.on("did-finish-load", () => {
-        mainWindow.webContents.send(
-          "statusDiscord",
-          dcUser.username,
-          `https://cdn.discordapp.com/avatars/${dcUser.id}/${dcUser.avatar}?size=24`
-        );
+        if (success) {
+          mainWindow.webContents.send(
+            "statusDiscord",
+            true,
+            dcUser.username,
+            `https://cdn.discordapp.com/avatars/${dcUser.id}/${dcUser.avatar}?size=24`
+          );
+        } else {
+          mainWindow.webContents.send("statusDiscord", false);
+        }
       });
     });
   } catch (error) {
