@@ -22,17 +22,4 @@
   .scrollbar::-webkit-scrollbar-thumb {
     background: #ffffff;
   }
-  .scrollbar-x::-webkit-scrollbar {
-    height: 2px;
-    opacity: 0.5;
-  }
-
-  .scrollbar-x::-webkit-scrollbar-track {
-    border-radius: 100vh;
-    width: 90%;
-  }
-
-  .scrollbar-x::-webkit-scrollbar-thumb {
-    background: #ffffff;
-  }
 }

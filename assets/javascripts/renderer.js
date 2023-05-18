@@ -476,11 +476,11 @@ document.addEventListener("DOMContentLoaded", async () => {
               optifineDownloadTrigger.dataset.mc,
               optifineDownloadTrigger.dataset.optifine
             );
-            document
-              .querySelectorAll(`[data-modal-hide="staticModal"]`)
-              .forEach((closeBtn) => {
-                closeBtn.click();
-              });
+            // document
+            //   .querySelectorAll(`[data-modal-hide="staticModal"]`)
+            //   .forEach((closeBtn) => {
+            //     closeBtn.click();
+            //   });
           }
         });
       });
@@ -645,6 +645,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("discord").innerHTML = "";
       return;
     }
+    console.log(`DiscordRPC: ${username}`);
     document.getElementById("discordPic").classList.remove("hidden");
     document.getElementById("discordPic").src = link;
     document.getElementById("discordNick").innerText = username;

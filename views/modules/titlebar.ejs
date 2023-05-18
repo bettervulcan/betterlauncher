@@ -136,9 +136,13 @@
         </div>
       </div>
     </div>
-    <div id="window-title">
-      <span>Better Launcher</span>
-    </div>
+    <div id="window-title"></div>
+
+    <script>
+      document.getElementById(
+        "window-title"
+      ).innerHTML = `<span>${document.title}</span>`;
+    </script>
 
     <div id="window-controls">
       <div class="button" id="min-button">

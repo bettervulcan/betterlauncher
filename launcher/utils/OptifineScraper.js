@@ -1,6 +1,5 @@
 const ConfigManager = require("./../managers/ConfigManager");
 const FileManager = require("./../managers/FileManager");
-const JavaManager = require("./../managers/JavaManager");
 const { parse } = require("node-html-parser");
 const axios = require("axios");
 const path = require("path");
@@ -43,7 +42,7 @@ const scrapSite = () => {
   });
 };
 
-const downloadInstaller = (optifineObject) => {
+const downloadInstaller = (optifineObject, callback) => {
   axios
     .get(optifineObject.link)
     .then(async (res) => {
@@ -68,15 +67,45 @@ const downloadInstaller = (optifineObject) => {
             await ConfigManager.getVariable("rootPath"),
             "Optifines",
             optifineObject.mc.replaceAll(".", "_"),
-
             optifineObject.optifine + ".jar"
           );
+          FileManager.createIfNotExistFile(optifineJarPath);
           await fs.openSync(optifineJarPath, "w");
-          await response.data.pipe(fs.createWriteStream(optifineJarPath));
-          response.data.on("end", () => {
-            JavaManager.executeJar(optifineJarPath);
+
+          const fileStream = fs.createWriteStream(optifineJarPath);
+          const fileSize = parseInt(response.headers["content-length"], 10);
+          let downloadedSize = 0;
+          let startTime = Date.now();
+
+          response.data.on("data", function (chunk) {
+            downloadedSize += chunk.length;
+            const downloadProgress = (downloadedSize / fileSize) * 100;
+            const currentTime = Date.now();
+            const downloadSpeed =
+              downloadedSize / ((currentTime - startTime) / 1000);
+            callback({
+              finished: false,
+              progrss: downloadProgress.toFixed(2),
+              speed: downloadSpeed.toFixed(2),
+              downloaded: downloadedSize,
+              fileSize,
+            });
           });
-          return;
+
+          response.data.pipe(fileStream);
+
+          fileStream.on("finish", function () {
+            const endTime = Date.now();
+            const totalTime = (endTime - startTime) / 1000;
+            callback({
+              finished: true,
+              endTime: endTime.toFixed(2),
+              totalTime: totalTime.toFixed(2),
+              optifineJarPath,
+            });
+          });
+
+          return optifineJarPath;
         })
         .catch((err) => {
           throw new Error(`Error getting optifine jar.\n${err}`);

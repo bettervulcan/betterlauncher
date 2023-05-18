@@ -34,8 +34,7 @@ const getJavaExecPath = () => {
   });
 };
 
-const executeJar = async (jarPath, javaArgs) => {
-  console.log(jarPath, javaArgs);
+const executeJar = async (jarPath, javaArgs = "") => {
   process
     .exec(
       `"${path.join(await getJavaExecPath())}" -jar ${path.join(

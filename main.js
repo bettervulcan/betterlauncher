@@ -45,12 +45,11 @@ const createWindow = () => {
     icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: "BetterLauncher",
   });
-  mainWindow.setTitle("BetterLauncher");
   mainWindow.loadFile(path.join(__dirname, "views", "main.ejs"));
 
-  //mainWindow.openDevTools();
   ConfigManager.loadConfig();
   AccountsManager.loadAccounts();
+  VersionManager.cacheVersions();
   try {
     DiscordRPC.setupRPC((success, dcUser) => {
       mainWindow.webContents.on("did-finish-load", () => {
@@ -220,7 +219,6 @@ ipcMain.on("getVersionsByType", async (event, arg) => {
       });
       break;
   }
-  // console.log(Object.values(versionout));
   event.returnValue = Object.values(versionout);
 });
 
@@ -241,6 +239,40 @@ ipcMain.on("getOptionsInfo", async (event) => {
     game: { dir: await ConfigManager.getVariable("rootPath") },
     javaArgs: process.env._JAVA_OPTIONS,
   };
+});
+
+ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
+  const downladWindow = new BrowserWindow({
+    height: 300,
+    width: 600,
+    resizable: false,
+    webPreferences: {
+      enableRemoteModule: false,
+      contextIsolation: true,
+      devTools: true,
+    },
+    icon: path.join(__dirname, "assets", "icons", "logo.ico"),
+    title: `Optifine ${mc} ${optifine} Downloader`,
+    parent: mainWindow,
+    autoHideMenuBar: true,
+    modal: true,
+  });
+
+  downladWindow.loadFile(path.join("views", "others", "optifine.ejs"));
+
+  downladWindow.webContents.on("dom-ready", async () => {
+    await OptifineScraper.downloadInstaller(
+      (
+        await OptifineScraper.scrapSite()
+      )[mc][optifine],
+      (data) => {
+        downladWindow.webContents.executeJavaScript(
+          `document.body.innerHTML = '${JSON.stringify(data)}'`
+        );
+        if (data.finished) JavaManager.executeJar(data.optifineJarPath);
+      }
+    );
+  });
 });
 
 ipcMain.on("saveOptions", (event, args) => {

@@ -4,8 +4,14 @@ const axios = require("axios");
 const path = require("path");
 const fs = require("fs");
 
+let cache = undefined;
+
 const VersionManifest =
   "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"; //,ForgeManifest = "",  FabricManifest = "";
+
+const cacheVersions = async () => {
+  cache = await axios.get(VersionManifest);
+};
 
 const getInstalledVersions = async () => {
   try {
@@ -31,7 +37,12 @@ const getInstalledVersions = async () => {
 
 const getAvailableVersions = async (type) => {
   try {
-    const res = await axios.get(VersionManifest);
+    let res;
+    if (cache) {
+      res = cache;
+    } else {
+      res = await axios.get(VersionManifest);
+    }
 
     let versionList = [];
     res.data.versions.forEach((version) => {
@@ -144,6 +155,7 @@ const getVersionNumberByName = async (name) => {
 // })();
 
 module.exports = {
+  cacheVersions,
   getInstalledVersions,
   getAvailableVersions,
   downloadVersionJson,
