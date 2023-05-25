@@ -40,7 +40,7 @@ const createWindow = () => {
       enableRemoteModule: false,
       contextIsolation: true,
       devTools: true,
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "preloads", "main.js"),
     },
     icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: "BetterLauncher",
@@ -250,6 +250,7 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
       enableRemoteModule: false,
       contextIsolation: true,
       devTools: true,
+      preload: path.join(__dirname, "preloads", "optifine.js"),
     },
     icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: `Optifine ${mc} ${optifine} Downloader`,
@@ -260,19 +261,22 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
   downladWindow.loadFile(path.join("views", "others", "optifine.ejs"));
 
-  downladWindow.webContents.on("dom-ready", async () => {
-    await OptifineScraper.downloadInstaller(
-      (
-        await OptifineScraper.scrapSite()
-      )[mc][optifine],
-      (data) => {
-        downladWindow.webContents.executeJavaScript(
-          `document.body.innerHTML = '${JSON.stringify(data)}'`
-        );
-        if (data.finished) JavaManager.executeJar(data.optifineJarPath);
-      }
-    );
-  });
+  await LauncherMain.downloadOnly(
+    ConfigManager.getVariable("rootPath"),
+    mc,
+    launchOptions.memorySelected
+  );
+
+  await OptifineScraper.downloadInstaller(
+    (
+      await OptifineScraper.scrapSite()
+    )[mc][optifine],
+    (data) => {
+      downladWindow.webContents.send("updateDownloadState", data);
+
+      // if (data.finished) JavaManager.executeJar(data.optifineJarPath);
+    }
+  );
 });
 
 ipcMain.on("saveOptions", (event, args) => {
@@ -298,6 +302,11 @@ ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
     properties: [isJava ? "openFile" : "openDirectory"],
   });
   event.returnValue = dir;
+});
+
+ipcMain.on("runOptifineInstaller", async (event, path) => {
+  JavaManager.executeJar(path);
+  event.returnValue = undefined;
 });
 
 ipcMain.on("runClient", async () => {

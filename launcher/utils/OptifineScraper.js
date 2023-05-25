@@ -7,39 +7,37 @@ const fs = require("fs");
 
 const OptifineUrl = "https://optifine.net/downloads";
 
-const scrapSite = () => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(OptifineUrl)
-      .then(async (res) => {
-        let versions = {};
-        await (await parse(res.data))
-          .querySelectorAll("td.colMirror > a")
-          .forEach((elementHtml) => {
-            try {
-              const link = elementHtml.getAttribute("href");
-              const regex = /OptiFine_([\d.]+)_HD_U_([\w]+)\.jar/g;
-              const match = regex.exec(link);
-              if (match !== null) {
-                const mcVersion = match[1];
-                const optifineVersion = match[2];
-                if (!versions[mcVersion]) {
-                  versions[mcVersion] = [];
-                }
-                versions[mcVersion][optifineVersion] = {
-                  mc: mcVersion,
-                  optifine: optifineVersion,
-                  link,
-                };
-              }
-            } catch (error) {
-              reject(error);
+const scrapSite = async () => {
+  try {
+    const res = await axios.get(OptifineUrl);
+    let versions = {};
+    await parse(res.data)
+      .querySelectorAll("td.colMirror > a")
+      .forEach((elementHtml) => {
+        try {
+          const link = elementHtml.getAttribute("href");
+          const regex = /OptiFine_([\d.]+)_HD_U_([\w]+)\.jar/g;
+          const match = regex.exec(link);
+          if (match !== null) {
+            const mcVersion = match[1];
+            const optifineVersion = match[2];
+            if (!versions[mcVersion]) {
+              versions[mcVersion] = [];
             }
-          });
-        resolve(versions);
-      })
-      .catch(reject);
-  });
+            versions[mcVersion][optifineVersion] = {
+              mc: mcVersion,
+              optifine: optifineVersion,
+              link,
+            };
+          }
+        } catch (error) {
+          throw new Error(`Error parsing optifine.\n${error}`);
+        }
+      });
+    return versions;
+  } catch (error) {
+    throw new Error(`Error downloading optifine site.\n${error}`);
+  }
 };
 
 const downloadInstaller = (optifineObject, callback) => {
@@ -56,7 +54,7 @@ const downloadInstaller = (optifineObject, callback) => {
         responseType: "stream",
       })
         .then(async (response) => {
-          FileManager.createIfNotExistDir(
+          await FileManager.createIfNotExistDir(
             path.join(
               await ConfigManager.getVariable("rootPath"),
               "Optifines",
@@ -69,7 +67,7 @@ const downloadInstaller = (optifineObject, callback) => {
             optifineObject.mc.replaceAll(".", "_"),
             optifineObject.optifine + ".jar"
           );
-          FileManager.createIfNotExistFile(optifineJarPath);
+          await FileManager.createIfNotExistFile(optifineJarPath);
           await fs.openSync(optifineJarPath, "w");
 
           const fileStream = fs.createWriteStream(optifineJarPath);

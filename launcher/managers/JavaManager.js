@@ -4,34 +4,32 @@ const path = require("path");
 const os = require("os");
 
 const getJavaExecPath = () => {
-  return new Promise((resolve, reject) => {
-    if (os.platform() == "win32") {
-      process.exec("where java", (err, stdout, stderr) => {
-        if (err) {
-          console.log(err);
-          return reject(err);
-        }
-        if (stdout === "INFO: Could not find files for the given pattern(s).")
-          return reject("no java");
-        if (stdout.includes("\n")) {
-          return resolve(stdout.split("\n")[0]);
-        }
-        resolve(stdout, stderr);
-      });
-    } else if (os.platform() == "linux") {
-      process.exec("which java", (err, stdout, stderr) => {
-        if (err) {
-          console.log(err);
-          return reject(err);
-        }
-        if (stdout.includes("not found")) return reject("no java");
-        if (stdout.includes("\n")) {
-          return resolve(stdout.split("\n")[0]);
-        }
-        resolve(stdout, stderr);
-      });
-    }
-  });
+  if (os.platform() == "win32") {
+    process.exec("where java", (err, stdout) => {
+      if (err) {
+        console.log(err);
+        throw new Error(`Error runnin java command.\n${err}`);
+      }
+      if (stdout === "INFO: Could not find files for the given pattern(s).")
+        throw new Error("No java avalible");
+      if (stdout.includes("\n")) {
+        return stdout.split("\n")[0];
+      }
+      return stdout;
+    });
+  } else if (os.platform() == "linux") {
+    process.exec("which java", (err, stdout) => {
+      if (err) {
+        console.log(err);
+        throw new Error(`Error runnin java command.\n${err}`);
+      }
+      if (stdout.includes("not found")) throw new Error("No java avalible");
+      if (stdout.includes("\n")) {
+        return stdout.split("\n")[0];
+      }
+      return stdout;
+    });
+  }
 };
 
 const executeJar = async (jarPath, javaArgs = "") => {

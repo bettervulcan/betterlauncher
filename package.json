@@ -33,17 +33,18 @@
     "child_process": "^1.0.2",
     "discord-rpc": "^4.0.1",
     "ejs-electron": "^2.1.1",
+    "find-process": "^1.4.7",
     "fs": "^0.0.1-security",
+    "gmll": "^3.0.4",
     "minecraft-launcher-core": "^3.16.18",
     "msmc": "^4.1.0",
     "node-html-parser": "^6.1.5",
     "npm": "^9.6.1",
     "os": "^0.1.2",
-    "path": "^0.12.7",
-    "unorm": "^1.6.0"
+    "path": "^0.12.7"
   },
   "devDependencies": {
-    "electron": "^23.2.0",
+    "electron": "^24.4.0",
     "electron-builder": "23.6.0",
     "electron-reload": "^2.0.0-alpha.1",
     "eslint": "^8.40.0",
