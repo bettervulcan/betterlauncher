@@ -261,20 +261,44 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
   downladWindow.loadFile(path.join("views", "others", "optifine.ejs"));
 
+  let globalDone = false;
+
   await LauncherMain.downloadOnly(
     ConfigManager.getVariable("rootPath"),
     mc,
-    launchOptions.memorySelected
-  );
+    async (type, args) => {
+      console.log(type, args);
+      switch (type) {
+        case "progress":
+          downladWindow.webContents.send("updateDownloadState", "mc", {
+            finished: false,
+            progrss: (args.index / args.total) * 100,
+          });
+          console.log({
+            finished: false,
+            progrss: (args.index / args.total) * 100,
+          });
+          break;
+        case "done":
+          if (!globalDone) {
+            globalDone = true;
+            await OptifineScraper.downloadInstaller(
+              (
+                await OptifineScraper.scrapSite()
+              )[mc][optifine],
+              (data) => {
+                downladWindow.webContents.send(
+                  "updateDownloadState",
+                  "of",
+                  data
+                );
 
-  await OptifineScraper.downloadInstaller(
-    (
-      await OptifineScraper.scrapSite()
-    )[mc][optifine],
-    (data) => {
-      downladWindow.webContents.send("updateDownloadState", data);
-
-      // if (data.finished) JavaManager.executeJar(data.optifineJarPath);
+                // if (data.finished) JavaManager.executeJar(data.optifineJarPath);
+              }
+            );
+          }
+          break;
+      }
     }
   );
 });

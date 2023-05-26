@@ -5,34 +5,35 @@ const os = require("os");
 
 const getJavaExecPath = () => {
   if (os.platform() == "win32") {
-    process.exec("where java", (err, stdout) => {
-      if (err) {
-        console.log(err);
-        throw new Error(`Error runnin java command.\n${err}`);
-      }
-      if (stdout === "INFO: Could not find files for the given pattern(s).")
+    try {
+      const output = process.execSync("where java").toString();
+      if (output === "INFO: Could not find files for the given pattern(s).\n")
         throw new Error("No java avalible");
-      if (stdout.includes("\n")) {
-        return stdout.split("\n")[0];
+      if (output.includes("\n")) {
+        return output.split("\n")[0];
       }
-      return stdout;
-    });
+      return output;
+    } catch (err) {
+      throw new Error(`Error running java command.\n${err}`);
+    }
   } else if (os.platform() == "linux") {
-    process.exec("which java", (err, stdout) => {
-      if (err) {
-        console.log(err);
-        throw new Error(`Error runnin java command.\n${err}`);
+    try {
+      const output = process.execSync("which java").toString();
+      if (output.includes("not found")) throw new Error("No java avalible");
+      if (output.includes("\n")) {
+        return output.split("\n")[0];
       }
-      if (stdout.includes("not found")) throw new Error("No java avalible");
-      if (stdout.includes("\n")) {
-        return stdout.split("\n")[0];
-      }
-      return stdout;
-    });
+      return output;
+    } catch (err) {
+      throw new Error(`Error running java command.\n${err}`);
+    }
   }
 };
 
 const executeJar = async (jarPath, javaArgs = "") => {
+  console.log(
+    `Running ${jarPath} with java ${await getJavaExecPath()} with arguments {${javaArgs}}`
+  );
   process
     .exec(
       `"${path.join(await getJavaExecPath())}" -jar ${path.join(
@@ -44,8 +45,8 @@ const executeJar = async (jarPath, javaArgs = "") => {
 };
 
 // ! test
-// (async () => {
-//   console.log(await getJavaExec());
-// })();
+(async () => {
+  console.log(await getJavaExecPath());
+})();
 
 module.exports = { getJavaExecPath, executeJar };

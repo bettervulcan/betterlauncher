@@ -114,37 +114,8 @@ const getLastVersions = async () => {
   return [];
 };
 
-const getVersionNumberByName = async (name) => {
-  if (
-    fs.existsSync(
-      path.join(
-        await ConfigManager.getVariable("rootPath"),
-        "versions",
-        name,
-        name + ".json"
-      )
-    )
-  ) {
-    const versionJson = JSON.parse(
-      await fs.readFileSync(
-        path.join(
-          await ConfigManager.getVariable("rootPath"),
-          "versions",
-          name,
-          name + ".json"
-        )
-      )
-    );
-    if (versionJson.inheritsFrom) return versionJson.inheritsFrom;
-    // TODO forge number version from json
-    if (versionJson.id) return versionJson.id;
-  }
-  return name;
-};
-
 // ! tests
 // (async () => {
-// console.log(await getVersionNumberByName("fabric-loader-0.14.17-1.19.3"));
 //   console.log(await getInstalledVersions());
 //       console.log(await getAvailableVersions("snapshot"));
 //       console.log(await getAvailableVersions("old_alpha"));
@@ -161,5 +132,4 @@ module.exports = {
   downloadVersionJson,
   addLastVersion,
   getLastVersions,
-  getVersionNumberByName,
 };
