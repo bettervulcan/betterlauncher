@@ -72,7 +72,9 @@ const setVariable = (varname, content) => {
 const getVariable = (varname) => {
   if (varname === undefined) return "argument cant be undefined";
   if (config[varname] === undefined)
-    return "this variable doesnt exist in config";
+    throw new Error(
+      `Error getting ${varname} from config (${varname} is undefined).`
+    );
   return config[varname];
 };
 

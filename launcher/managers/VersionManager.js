@@ -109,9 +109,12 @@ const addLastVersion = async (version) => {
 };
 
 const getLastVersions = async () => {
-  const versionsList = await ConfigManager.getVariable("lastVersions");
-  if (versionsList) return versionsList;
-  return [];
+  try {
+    const versionsList = await ConfigManager.getVariable("lastVersions");
+    if (versionsList) return versionsList;
+  } catch (error) {
+    return [];
+  }
 };
 
 // ! tests

@@ -78,7 +78,7 @@ const downloadOnly = async (rootPath, versionName, cb) => {
           break;
       }
     });
-    await int.reinstall();
+    await int.install();
     cb = () => {};
     return;
   });

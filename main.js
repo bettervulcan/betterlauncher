@@ -3,6 +3,7 @@ const AccountsManager = require("./launcher/managers/AccountManager");
 const VersionManager = require("./launcher/managers/VersionManager");
 const OptifineScraper = require("./launcher/utils/OptifineScraper");
 const ConfigManager = require("./launcher/managers/ConfigManager");
+const FileManager = require("./launcher/managers/FileManager");
 const JavaManager = require("./launcher/managers/JavaManager");
 const DiscordRPC = require("./launcher/utils/DiscordRPC");
 const LauncherMain = require("./launcher/Launcher");
@@ -10,6 +11,20 @@ const process = require("process");
 const crypto = require("crypto");
 const path = require("path");
 const os = require("os");
+const fs = require("fs");
+
+const logsFile = path.join(
+  ConfigManager.getVariable("rootPath"),
+  "better",
+  "latest.log"
+);
+FileManager.createIfNotExistFile(logsFile);
+
+const log = console.log;
+console.log = async (...args) => {
+  log(...args);
+  fs.appendFileSync(logsFile, args.join(" ") + "\n", "utf-8");
+};
 
 const launchOptions = {
   accountObjSelected: "",
@@ -120,7 +135,12 @@ ipcMain.on("useCrack", async (event, name) => {
 });
 
 ipcMain.on("getAccounts", async (event) => {
-  event.returnValue = await AccountsManager.getAccountsList();
+  try {
+    event.returnValue = await AccountsManager.getAccountsList();
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("selectedAccount", async (event, arg) => {
@@ -132,7 +152,12 @@ ipcMain.on("selectedAccount", async (event, arg) => {
 });
 
 ipcMain.on("getLastVersions", async (event) => {
-  event.returnValue = await VersionManager.getLastVersions();
+  try {
+    event.returnValue = await VersionManager.getLastVersions();
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("selectedVersion", async (event, arg) => {
@@ -142,7 +167,12 @@ ipcMain.on("selectedVersion", async (event, arg) => {
 });
 
 ipcMain.on("getInstalledVersions", async (event) => {
-  event.returnValue = await VersionManager.getInstalledVersions();
+  try {
+    event.returnValue = await VersionManager.getInstalledVersions();
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("disconnectRPC", async () => {
@@ -150,95 +180,110 @@ ipcMain.on("disconnectRPC", async () => {
 });
 
 ipcMain.on("getVersionsByType", async (event, arg) => {
-  let groupedVersions = [];
-  if (arg == "alpha") {
-    groupedVersions = Object.values(
-      await VersionManager.getAvailableVersions("old_alpha")
-    ).concat(
-      Object.values(await VersionManager.getAvailableVersions("old_beta"))
-    );
-  } else if (arg == "optifine") {
-    groupedVersions = Object.values(await OptifineScraper.scrapSite());
-  } else {
-    groupedVersions = Object.values(
-      await VersionManager.getAvailableVersions(arg)
-    );
-  }
-  let versionout = [];
-  switch (arg) {
-    case "release":
-      groupedVersions.forEach((version) => {
-        let mainversion =
-          version.name.split(".")[0] + "." + version.name.split(".")[1];
-        if (!versionout[mainversion]) {
-          versionout[mainversion] = [];
-        }
-        versionout[mainversion].push(version.name);
-      });
-      break;
-    case "snapshot":
-      groupedVersions.forEach((version) => {
-        if (version.name.includes("w")) {
-          let mainversion = version.name.split("w")[0];
+  try {
+    let groupedVersions = [];
+    if (arg == "alpha") {
+      groupedVersions = Object.values(
+        await VersionManager.getAvailableVersions("old_alpha")
+      ).concat(
+        Object.values(await VersionManager.getAvailableVersions("old_beta"))
+      );
+    } else if (arg == "optifine") {
+      groupedVersions = Object.values(await OptifineScraper.scrapSite());
+    } else {
+      groupedVersions = Object.values(
+        await VersionManager.getAvailableVersions(arg)
+      );
+    }
+    let versionout = [];
+    switch (arg) {
+      case "release":
+        groupedVersions.forEach((version) => {
+          let mainversion =
+            version.name.split(".")[0] + "." + version.name.split(".")[1];
           if (!versionout[mainversion]) {
             versionout[mainversion] = [];
           }
           versionout[mainversion].push(version.name);
-        } else if (version.name.includes("-")) {
-          let mainversion = version.name.split("-")[0];
-          if (!versionout[mainversion]) {
-            versionout[mainversion] = [];
-          }
-          versionout[mainversion].push(version.name);
-        } else {
-          let mainversion = version.name;
-          if (!versionout[mainversion]) {
-            versionout[mainversion] = [];
-          }
-          versionout[mainversion].push(version.name);
-        }
-      });
-      break;
-    case "optifine":
-      groupedVersions.forEach((version) => {
-        version = Object.values(version);
-        if (!versionout[version[0].mc]) {
-          versionout[version[0].mc] = [];
-        }
-        version.forEach((subVer) => {
-          versionout[version[0].mc].push(`${subVer.mc}_${subVer.optifine}`);
         });
-      });
-      break;
-    default:
-      groupedVersions.forEach((version) => {
-        if (!versionout[version.name]) {
-          versionout[version.name] = [];
-        }
-        versionout[version.name].push(version.name);
-      });
-      break;
+        break;
+      case "snapshot":
+        groupedVersions.forEach((version) => {
+          if (version.name.includes("w")) {
+            let mainversion = version.name.split("w")[0];
+            if (!versionout[mainversion]) {
+              versionout[mainversion] = [];
+            }
+            versionout[mainversion].push(version.name);
+          } else if (version.name.includes("-")) {
+            let mainversion = version.name.split("-")[0];
+            if (!versionout[mainversion]) {
+              versionout[mainversion] = [];
+            }
+            versionout[mainversion].push(version.name);
+          } else {
+            let mainversion = version.name;
+            if (!versionout[mainversion]) {
+              versionout[mainversion] = [];
+            }
+            versionout[mainversion].push(version.name);
+          }
+        });
+        break;
+      case "optifine":
+        groupedVersions.forEach((version) => {
+          version = Object.values(version);
+          if (!versionout[version[0].mc]) {
+            versionout[version[0].mc] = [];
+          }
+          version.forEach((subVer) => {
+            versionout[version[0].mc].push(`${subVer.mc}_${subVer.optifine}`);
+          });
+        });
+        break;
+      default:
+        groupedVersions.forEach((version) => {
+          if (!versionout[version.name]) {
+            versionout[version.name] = [];
+          }
+          versionout[version.name].push(version.name);
+        });
+        break;
+    }
+    event.returnValue = Object.values(versionout);
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
   }
-  event.returnValue = Object.values(versionout);
 });
 
 ipcMain.on("getSummary", async (event) => {
-  let safeOptions = JSON.stringify(launchOptions);
-  safeOptions = JSON.parse(safeOptions);
-  delete safeOptions.accountObjSelected.refreshToken;
-  event.returnValue = safeOptions;
+  try {
+    let safeOptions = JSON.stringify(launchOptions);
+    safeOptions = JSON.parse(safeOptions);
+    delete safeOptions.accountObjSelected.refreshToken;
+    event.returnValue = safeOptions;
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("getOptionsInfo", async (event) => {
-  event.returnValue = {
-    memory: {
-      selected: parseInt(launchOptions.memorySelected.max.replace("G")),
-      max: Math.round(os.totalmem() / (1024 * 1024 * 1024)),
-    },
-    java: { path: await JavaManager.getJavaExecPath() },
-    game: { dir: await ConfigManager.getVariable("rootPath") },
-    javaArgs: process.env._JAVA_OPTIONS,
-  };
+  try {
+    event.returnValue = {
+      memory: {
+        selected: parseInt(launchOptions.memorySelected.max.replace("G")),
+        max: Math.round(os.totalmem() / (1024 * 1024 * 1024)),
+      },
+      java: { path: await JavaManager.getJavaExecPath() },
+      game: { dir: await ConfigManager.getVariable("rootPath") },
+      javaArgs: process.env._JAVA_OPTIONS,
+    };
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
@@ -317,20 +362,30 @@ ipcMain.on("saveOptions", (event, args) => {
 });
 
 ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
-  const dir = await dialog.showOpenDialog({
-    title: isJava
-      ? "Select Java Executable (javaw.exe)"
-      : "Select Minecraft RunDir (.minecraft)",
-    defaultPath: defaultLocation,
-    filters: [isJava ? { name: "Java Executable", extensions: ["exe"] } : {}],
-    properties: [isJava ? "openFile" : "openDirectory"],
-  });
-  event.returnValue = dir;
+  try {
+    const dir = await dialog.showOpenDialog({
+      title: isJava
+        ? "Select Java Executable (javaw.exe)"
+        : "Select Minecraft RunDir (.minecraft)",
+      defaultPath: defaultLocation,
+      filters: [isJava ? { name: "Java Executable", extensions: ["exe"] } : {}],
+      properties: [isJava ? "openFile" : "openDirectory"],
+    });
+    event.returnValue = dir;
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("runOptifineInstaller", async (event, path) => {
-  JavaManager.executeJar(path);
-  event.returnValue = undefined;
+  try {
+    JavaManager.executeJar(path);
+    event.returnValue = undefined;
+  } catch (error) {
+    event.returnValue = undefined;
+    throw new Error(`Error getting information from main.\n${error}}`);
+  }
 });
 
 ipcMain.on("runClient", async () => {
