@@ -19,6 +19,7 @@ const launchClient = async (refreshToken, rootPath, versionName, memory) => {
   gmll.init().then(async () => {
     var int = new Instance({
       version: versionName,
+      ram: memory,
     });
     int.launch(token.gmll());
   });
@@ -38,11 +39,12 @@ const launchClientAsCrack = async (
   gmll.init().then(async () => {
     var int = new Instance({
       version: versionName,
+      ram: memory,
     });
     int.launch({
       profile: {
         id: "",
-        name: "",
+        name: nickname,
         demo: false,
       },
     });

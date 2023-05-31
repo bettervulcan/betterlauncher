@@ -597,7 +597,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   gamePath.innerHTML = info.game.dir;
   javaPath.innerText = info.java.path;
-  ramCount.innerText = info.memory.selected + "G";
+  ramCount.innerText = info.memory.selected;
   argsArea.innerText = info.javaArgs;
   ramSlider.value = info.memory.selected;
   ramFree.innerText = `Zostało Ci ${
@@ -605,7 +605,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }G do przeznaczenia`;
   ramSlider.setAttribute("max", info.memory.max);
   ramSlider.addEventListener("input", () => {
-    ramCount.innerText = ramSlider.value + "G";
+    ramCount.innerText = ramSlider.value;
     ramFree.innerText = `Zostało Ci ${(
       info.memory.max - ramSlider.value
     ).toFixed(1)}G do przeznaczenia`;
@@ -633,7 +633,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     .querySelector(`[data-modal-hide="options"]`)
     .addEventListener("click", () => {
       window.electron.saveOptions({
-        ram: ramSlider.value + "G",
+        ram: ramSlider.value,
         java: javaPath.innerText,
         game: gamePath.innerText,
         args: argsArea.innerText,

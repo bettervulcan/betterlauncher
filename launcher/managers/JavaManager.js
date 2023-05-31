@@ -32,7 +32,13 @@ const getJavaExecPath = () => {
 
 const executeJar = async (jarPath, javaArgs = "") => {
   console.log(
-    `Running ${jarPath} with java ${await getJavaExecPath()} with arguments {${javaArgs}}`
+    "Running",
+    jarPath,
+    " with java ",
+    await getJavaExecPath(),
+    " with arguments {",
+    javaArgs,
+    "}"
   );
   process
     .exec(

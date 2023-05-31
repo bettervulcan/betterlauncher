@@ -26,16 +26,18 @@ console.log = async (...args) => {
   fs.appendFileSync(logsFile, args.join(" ") + "\n", "utf-8");
 };
 
+console.log(`Logs in ${logsFile} dir c:`);
+
 const launchOptions = {
   accountObjSelected: "",
   versionNameSelected: "",
-  memorySelected: { min: "512M", max: "1G" },
+  memorySelected: 2,
 };
 
 //TODO * dev only
-require("electron-reload")(__dirname, {
-  electron: require(`${__dirname}/node_modules/electron`),
-});
+// require("electron-reload")(__dirname, {
+//   electron: require(`${__dirname}/node_modules/electron`),
+// });
 
 require("ejs-electron");
 
@@ -273,7 +275,7 @@ ipcMain.on("getOptionsInfo", async (event) => {
   try {
     event.returnValue = {
       memory: {
-        selected: parseInt(launchOptions.memorySelected.max.replace("G")),
+        selected: parseInt(launchOptions.memorySelected),
         max: Math.round(os.totalmem() / (1024 * 1024 * 1024)),
       },
       java: { path: await JavaManager.getJavaExecPath() },
@@ -306,7 +308,8 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
   downladWindow.loadFile(path.join("views", "others", "optifine.ejs"));
 
-  let globalDone = false;
+  let globalDone = false,
+    doneCount = 0;
 
   await LauncherMain.downloadOnly(
     ConfigManager.getVariable("rootPath"),
@@ -325,6 +328,12 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
           });
           break;
         case "done":
+          doneCount++;
+          downladWindow.webContents.send("updateDownloadState", "mc", {
+            finished: false,
+            doneCount,
+          });
+
           if (!globalDone) {
             globalDone = true;
             await OptifineScraper.downloadInstaller(
@@ -350,7 +359,7 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
 ipcMain.on("saveOptions", (event, args) => {
   console.log(args);
-  launchOptions.memorySelected.max = args.ram;
+  launchOptions.memorySelected = args.ram;
   // TODO SEND JAVA PATH (args.java) TO JAVA MANAGER (replace the \n to "" on the end)
   if (ConfigManager.getVariable("rootPath") !== path.join(args.game)) {
     const oldPath = ConfigManager.getVariable("rootPath");
