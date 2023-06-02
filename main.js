@@ -20,10 +20,15 @@ const logsFile = path.join(
 );
 FileManager.createIfNotExistFile(logsFile);
 
+const logListeners = [];
+
 const log = console.log;
 console.log = async (...args) => {
   log(...args);
   fs.appendFileSync(logsFile, args.join(" ") + "\n", "utf-8");
+  logListeners.forEach((listener) => {
+    listener(...args);
+  });
 };
 
 console.log(`Logs in ${logsFile} dir c:`);
@@ -35,9 +40,9 @@ const launchOptions = {
 };
 
 //TODO * dev only
-require("electron-reload")(__dirname, {
-  electron: require(`${__dirname}/node_modules/electron`),
-});
+// require("electron-reload")(__dirname, {
+//   electron: require(`${__dirname}/node_modules/electron`),
+// });
 
 require("ejs-electron");
 
@@ -398,6 +403,33 @@ ipcMain.on("runOptifineInstaller", async (event, path) => {
 });
 
 ipcMain.on("runClient", async () => {
+  const logsWindow = new BrowserWindow({
+    height: 300,
+    width: 600,
+    resizable: false,
+    webPreferences: {
+      enableRemoteModule: false,
+      contextIsolation: true,
+      devTools: true,
+      preload: path.join(__dirname, "preloads", "logs.js"),
+    },
+    icon: path.join(__dirname, "assets", "icons", "logo.ico"),
+    title: `Running ${launchOptions.versionNameSelected} as ${launchOptions.accountObjSelected.displayName}`,
+    parent: mainWindow,
+    autoHideMenuBar: true,
+    modal: false,
+  });
+
+  logsWindow.loadFile(path.join("views", "others", "logs.ejs"));
+
+  const onLog = (...logs) => {
+    try {
+      logsWindow.webContents.send("log", ...logs);
+    } catch (error) {}
+  };
+
+  logListeners.push(onLog);
+
   if (launchOptions.accountObjSelected.premium) {
     await LauncherMain.launchClient(
       launchOptions.accountObjSelected.refreshToken,
