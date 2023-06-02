@@ -26,32 +26,6 @@ const removeAllListeners = (targetNode, event) => {
   );
 };
 
-const checked = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-const checkedPath = document.createElementNS(
-  "http://www.w3.org/2000/svg",
-  "path"
-);
-
-checked.setAttribute("fill", "currentColor");
-checked.setAttribute("viewBox", "0 0 20 20");
-checked.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-
-checkedPath.setAttribute("aria-hidden", "true");
-checkedPath.setAttribute("fill", "currentColor");
-checkedPath.setAttribute("fill-rule", "evenodd");
-checkedPath.setAttribute(
-  "d",
-  "M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-);
-checkedPath.setAttribute("clip-rule", "evenodd");
-checked.classList.add("w-4");
-checked.classList.add("h-4");
-checked.classList.add("mr-2");
-checked.classList.add("sm:w-5");
-checked.classList.add("sm:h-5");
-
-checked.appendChild(checkedPath);
-
 document.addEventListener("DOMContentLoaded", async () => {
   let safeState = 0;
   const statusLogin = document.getElementById("screenStatusLogin");
@@ -61,53 +35,42 @@ document.addEventListener("DOMContentLoaded", async () => {
   statusLogin.addEventListener("click", () => {
     if (safeState > 1) {
       switchView(currentView, "#welcome");
-      if (safeState > 2) {
-        setTimeout(() => {
-          statusVersion.childNodes[1].firstChild.remove();
-          $(statusVersion.childNodes[1]).hide().fadeIn(1000);
-        }, 600);
-      }
-      setTimeout(() => {
-        setScreensState("login");
-        safeState = 1;
-        statusLogin.childNodes[1].firstChild.remove();
-        $(statusLogin.childNodes[1]).hide().fadeIn(1000);
-      }, 600);
+      setScreensState("login");
+      safeState = 1;
     }
   });
   statusVersion.addEventListener("click", () => {
     if (safeState > 2) {
       switchView(currentView, "#versions");
-      statusLogin.childNodes[1].firstChild.remove();
-      setTimeout(() => {
-        setScreensState("version");
-        safeState = 2;
-        statusVersion.childNodes[1].firstChild.remove();
-      }, 600);
+      setScreensState("version");
+      safeState = 2;
     }
   });
 
   const setScreensState = (screen) => {
     setTimeout(() => {
+      console.log();
       switch (screen) {
         case "login":
           statusLogin.classList.add("text-[#865DFF]");
           statusVersion.classList.remove("text-[#865DFF]");
           statusRun.classList.remove("text-[#865DFF]");
+          statusLogin.childNodes[1].childNodes[1].classList.add("hidden");
+          statusVersion.childNodes[1].childNodes[1].classList.add("hidden");
           break;
         case "version":
           statusLogin.classList.remove("text-[#865DFF]");
           statusVersion.classList.add("text-[#865DFF]");
           statusRun.classList.remove("text-[#865DFF]");
-          statusLogin.childNodes[1].prepend(checked.cloneNode(true));
-          $(statusLogin.childNodes[1]).hide().fadeIn(1000);
+          statusLogin.childNodes[1].childNodes[1].classList.remove("hidden");
+          statusVersion.childNodes[1].childNodes[1].classList.add("hidden");
           break;
         case "run":
           statusLogin.classList.remove("text-[#865DFF]");
           statusVersion.classList.remove("text-[#865DFF]");
           statusRun.classList.add("text-[#865DFF]");
-          statusVersion.childNodes[1].prepend(checked.cloneNode(true));
-          $(statusVersion.childNodes[1]).hide().fadeIn(1000);
+          statusLogin.childNodes[1].childNodes[1].classList.remove("hidden");
+          statusVersion.childNodes[1].childNodes[1].classList.remove("hidden");
           break;
       }
     }, 600);
@@ -219,7 +182,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   runClientButton.addEventListener("click", () => {
     window.electron.runClient();
-    statusRun.prepend(checked.cloneNode(true));
   });
 
   const openVersionModalButton = document.getElementById(
