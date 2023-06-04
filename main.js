@@ -40,9 +40,9 @@ const launchOptions = {
 };
 
 //TODO * dev only
-// require("electron-reload")(__dirname, {
-//   electron: require(`${__dirname}/node_modules/electron`),
-// });
+require("electron-reload")(__dirname, {
+  electron: require(`${__dirname}/node_modules/electron`),
+});
 
 require("ejs-electron");
 
@@ -425,7 +425,9 @@ ipcMain.on("runClient", async () => {
   const onLog = (...logs) => {
     try {
       logsWindow.webContents.send("log", ...logs);
-    } catch (error) {}
+    } catch (error) {
+      logListeners.splice(0, logListeners.length);
+    }
   };
 
   logListeners.push(onLog);
