@@ -313,6 +313,16 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
   downladWindow.loadFile(path.join("views", "others", "optifine.ejs"));
 
+  const onLog = (...logs) => {
+    try {
+      downladWindow.webContents.send("log", ...logs);
+    } catch (error) {
+      logListeners.splice(0, logListeners.length);
+    }
+  };
+
+  logListeners.push(onLog);
+
   let globalDone = false,
     doneCount = 0;
 
@@ -351,8 +361,6 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
                   "of",
                   data
                 );
-
-                // if (data.finished) JavaManager.executeJar(data.optifineJarPath);
               }
             );
           }
@@ -425,7 +433,9 @@ ipcMain.on("runClient", async () => {
   const onLog = (...logs) => {
     try {
       logsWindow.webContents.send("log", ...logs);
-    } catch (error) {}
+    } catch (error) {
+      logListeners.splice(0, logListeners.length);
+    }
   };
 
   logListeners.push(onLog);
