@@ -40,9 +40,9 @@ const launchOptions = {
 };
 
 //TODO * dev only
-// require("electron-reload")(__dirname, {
-//   electron: require(`${__dirname}/node_modules/electron`),
-// });
+require("electron-reload")(__dirname, {
+  electron: require(`${__dirname}/node_modules/electron`),
+});
 
 require("ejs-electron");
 
