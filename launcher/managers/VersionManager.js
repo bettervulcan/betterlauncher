@@ -35,6 +35,10 @@ const getInstalledVersions = async () => {
   }
 };
 
+const isVersionInstalled = async (version) => {
+  return (await getInstalledVersions()).includes(version);
+};
+
 const getAvailableVersions = async (type) => {
   try {
     let res;
@@ -109,9 +113,14 @@ const addLastVersion = async (version) => {
 };
 
 const getLastVersions = async () => {
+  // TODO check if version exist
   try {
     const versionsList = await ConfigManager.getVariable("lastVersions");
-    if (versionsList) return versionsList;
+    if (versionsList) {
+      return versionsList;
+    } else {
+      return [];
+    }
   } catch (error) {
     return [];
   }
@@ -131,6 +140,7 @@ const getLastVersions = async () => {
 module.exports = {
   cacheVersions,
   getInstalledVersions,
+  isVersionInstalled,
   getAvailableVersions,
   downloadVersionJson,
   addLastVersion,

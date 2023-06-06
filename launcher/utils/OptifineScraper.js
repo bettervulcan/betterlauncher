@@ -57,13 +57,15 @@ const downloadInstaller = (optifineObject, callback) => {
           await FileManager.createIfNotExistDir(
             path.join(
               await ConfigManager.getVariable("rootPath"),
-              "Optifines",
+              "better",
+              "optifine",
               optifineObject.mc.replaceAll(".", "_")
             )
           );
           const optifineJarPath = path.join(
             await ConfigManager.getVariable("rootPath"),
-            "Optifines",
+            "better",
+            "optifine",
             optifineObject.mc.replaceAll(".", "_"),
             optifineObject.optifine + ".jar"
           );
@@ -73,32 +75,21 @@ const downloadInstaller = (optifineObject, callback) => {
           const fileStream = fs.createWriteStream(optifineJarPath);
           const fileSize = parseInt(response.headers["content-length"], 10);
           let downloadedSize = 0;
-          let startTime = Date.now();
 
           response.data.on("data", function (chunk) {
             downloadedSize += chunk.length;
             const downloadProgress = (downloadedSize / fileSize) * 100;
-            const currentTime = Date.now();
-            const downloadSpeed =
-              downloadedSize / ((currentTime - startTime) / 1000);
             callback({
               finished: false,
               progrss: downloadProgress.toFixed(2),
-              speed: downloadSpeed.toFixed(2),
-              downloaded: downloadedSize,
-              fileSize,
             });
           });
 
           response.data.pipe(fileStream);
 
           fileStream.on("finish", function () {
-            const endTime = Date.now();
-            const totalTime = (endTime - startTime) / 1000;
             callback({
               finished: true,
-              endTime: endTime.toFixed(2),
-              totalTime: totalTime.toFixed(2),
               optifineJarPath,
             });
           });

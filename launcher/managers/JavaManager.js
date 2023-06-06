@@ -30,7 +30,7 @@ const getJavaExecPath = () => {
   }
 };
 
-const executeJar = async (jarPath, javaArgs = "") => {
+const executeJar = async (jarPath, javaArgs = "", cb = () => {}) => {
   console.log(
     "Running",
     jarPath,
@@ -40,14 +40,16 @@ const executeJar = async (jarPath, javaArgs = "") => {
     javaArgs,
     "}"
   );
-  process
-    .exec(
-      `"${path.join(await getJavaExecPath())}" -jar ${path.join(
-        jarPath
-      )} ${javaArgs}`,
-      { detached: true }
-    )
-    .unref();
+  const java = process.exec(
+    `"${path.join(await getJavaExecPath())}" -jar ${path.join(
+      jarPath
+    )} ${javaArgs}`,
+    { detached: true }
+  );
+  java.unref();
+  java.on("exit", () => {
+    cb({ exited: true });
+  });
 };
 
 // ! test

@@ -40,13 +40,14 @@ const launchOptions = {
 };
 
 //TODO * dev only
-require("electron-reload")(__dirname, {
-  electron: require(`${__dirname}/node_modules/electron`),
-});
+// require("electron-reload")(__dirname, {
+//   electron: require(`${__dirname}/node_modules/electron`),
+// });
 
 require("ejs-electron");
 
-var mainWindow;
+var mainWindow = undefined,
+  lastOFWindow = undefined;
 
 const createWindow = () => {
   const { screen } = require("electron");
@@ -294,7 +295,7 @@ ipcMain.on("getOptionsInfo", async (event) => {
 });
 
 ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
-  const downladWindow = new BrowserWindow({
+  lastOFWindow = new BrowserWindow({
     height: 300,
     width: 600,
     resizable: false,
@@ -311,11 +312,11 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
     modal: true,
   });
 
-  downladWindow.loadFile(path.join("views", "others", "optifine.ejs"));
+  lastOFWindow.loadFile(path.join("views", "others", "optifine.ejs"));
 
   const onLog = (...logs) => {
     try {
-      downladWindow.webContents.send("log", ...logs);
+      lastOFWindow.webContents.send("log", ...logs);
     } catch (error) {
       logListeners.splice(0, logListeners.length);
     }
@@ -323,44 +324,47 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
   logListeners.push(onLog);
 
-  let globalDone = false,
-    doneCount = 0;
+  let doneCount = 0;
+
+  let mcNormalized = mc;
+  if (mc.slice(mc.length - 2) == ".0") {
+    mcNormalized = mc.slice(0, mc.length - 2);
+  }
+
+  lastOFWindow.webContents.send("updateDownloadMC", {
+    version: { mc: mcNormalized, optifine },
+    progrss: 0,
+    doneCount: 0,
+  });
 
   await LauncherMain.downloadOnly(
     ConfigManager.getVariable("rootPath"),
-    mc,
+    mcNormalized,
     async (type, args) => {
       console.log(type, args);
       switch (type) {
         case "progress":
-          downladWindow.webContents.send("updateDownloadState", "mc", {
-            finished: false,
+          lastOFWindow.webContents.send("updateDownloadMC", {
+            version: { mc: mcNormalized, optifine },
             progrss: (args.index / args.total) * 100,
-          });
-          console.log({
-            finished: false,
-            progrss: (args.index / args.total) * 100,
+            doneCount,
           });
           break;
         case "done":
           doneCount++;
-          downladWindow.webContents.send("updateDownloadState", "mc", {
-            finished: false,
+          lastOFWindow.webContents.send("updateDownloadMC", {
+            version: { mc: mcNormalized, optifine },
             doneCount,
           });
 
-          if (!globalDone) {
-            globalDone = true;
+          if (doneCount == 3) {
+            console.log(`Downloading optifine ${mc} ${optifine}...`);
             await OptifineScraper.downloadInstaller(
               (
                 await OptifineScraper.scrapSite()
               )[mc][optifine],
               (data) => {
-                downladWindow.webContents.send(
-                  "updateDownloadState",
-                  "of",
-                  data
-                );
+                lastOFWindow.webContents.send("updateDownloadOF", data);
               }
             );
           }
@@ -402,7 +406,11 @@ ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
 
 ipcMain.on("runOptifineInstaller", async (event, path) => {
   try {
-    JavaManager.executeJar(path);
+    JavaManager.executeJar(path, "", ({ exited }) => {
+      if (exited) {
+        if (lastOFWindow) lastOFWindow.close();
+      }
+    });
     event.returnValue = undefined;
   } catch (error) {
     event.returnValue = undefined;

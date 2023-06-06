@@ -14,7 +14,8 @@
             <li>
               <div class="flex items-center">
                 <span
-                  class="ml-1 text-sm text-[#FFA3FD] font-medium text-gray-500 md:ml-2"
+                  id="statusMinecraft"
+                  class="ml-1 text-sm font-medium text-gray-500 md:ml-2"
                   >Pobieranie Minecraft</span
                 >
               </div>
@@ -34,7 +35,9 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2"
+                <span
+                  id="statusOptifine"
+                  class="ml-1 text-sm font-medium text-gray-500 md:ml-2"
                   >Pobieranie Optifine</span
                 >
               </div>
@@ -54,7 +57,9 @@
                     clip-rule="evenodd"
                   ></path>
                 </svg>
-                <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2"
+                <span
+                  id="statusInstalling"
+                  class="ml-1 text-sm font-medium text-gray-500 md:ml-2"
                   >Instalowanie</span
                 >
               </div>
@@ -62,12 +67,13 @@
           </ol>
         </nav>
       </div>
-      <p class="text-lg font-medium text-gray-400 mt-12">
-        TU MA BYC WERSJA POBIERANEGO OPTIFINE
+      <p id="optifineHeader" class="text-lg font-medium text-gray-400 mt-12">
+        Optifine LOADING...
       </p>
       <div class="h-screen w-screen flex items-center justify-center flex-col">
         <div class="w-[90%] bg-gray-200 rounded-full dark:bg-gray-700">
           <div
+            id="progressBar"
             class="bg-[#FFA3FD] text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
             style="width: 100%"
           >
@@ -75,18 +81,19 @@
           </div>
         </div>
         <div class="w-screen text-left">
-          <p class="text-sm ml-8 font-medium text-gray-500">
-            Ruchanie stasienka starej
+          <p id="log" class="text-sm ml-8 font-medium text-gray-500">
+            Idling...
           </p>
         </div>
       </div>
       <div
-        class="h-screen w-screen backdrop-blur-sm fixed flex justify-center items-center"
+        id="finishModal"
+        class="h-screen w-screen backdrop-blur-sm fixed flex justify-center items-center hidden"
       >
         <button
           type="button"
           class="text-white fixed shadow-[0px_0px_30px_5px_#FFA3FD] bg-[#FFA3FD] my-6 hover:bg-[#E384FF]/90 focus:ring-transparent focus:outline-none font-medium rounded-lg text-sm px-8 py-4 text-center inline-flex items-center mr-2 mb-2 hover:transition-all transition-all duration-300"
-          id="runClient"
+          id="install"
         >
           <div class="flex items-center justify-center flex-col">
             <p
@@ -96,11 +103,8 @@
               ZAINSTALUJ
             </p>
             <div class="flex justify-center items-center">
-              <p
-                class="text-xs text-gray-900 dark:text-white"
-                id="dynamicPlayer"
-              >
-                Optifine wersja twoj stary
+              <p id="summary" class="text-xs text-gray-900 dark:text-white">
+                Optifine LOADING...
               </p>
             </div>
           </div>
