@@ -1,7 +1,8 @@
 const VersionManager = require("./managers/VersionManager");
-const core = require("@xmcl/core");
 const installer = require("@xmcl/installer");
+const core = require("@xmcl/core");
 const user = require("@xmcl/user");
+const logger = require("./../logger");
 const { Auth } = require("msmc");
 
 const authManager = new Auth("select_account");
@@ -11,17 +12,17 @@ const openLoginMS = () => {
 };
 
 const launchClient = async (refreshToken, rootPath, versionName, memory) => {
-  console.log(refreshToken, rootPath, versionName, memory);
+  logger.info(refreshToken, rootPath, versionName, memory);
   const xboxManager = await authManager.refresh(refreshToken);
   const token = await xboxManager.getMinecraft();
-  console.log("Installing!");
+  logger.info("Installing!");
   const installAllTask = installer.installTask(
     await VersionManager.getVersionMeta(versionName),
     rootPath
   );
   await installAllTask.startAndWait({
     onUpdate(task) {
-      console.log(
+      logger.info(
         "onUpdate",
         task.name,
         installAllTask.progress,
@@ -29,16 +30,16 @@ const launchClient = async (refreshToken, rootPath, versionName, memory) => {
       );
     },
     onFailed(task, error) {
-      console.log("onFailed", task.name, error);
+      logger.info("onFailed", task.name, error);
     },
     onSuccessed(task, result) {
-      console.log("onSuccessed", task.name, result);
+      logger.info("onSuccessed", task.name, result);
     },
     onCancelled(task) {
-      console.log("onCancelled", task.name);
+      logger.info("onCancelled", task.name);
     },
   });
-  console.log("Starting!");
+  logger.info("Starting!");
   const javaPath =
     "C:\\Program Files\\Eclipse Adoptium\\jre-17.0.6.10-hotspot\\bin\\java.exe";
   // TODO: repair java path wtf
@@ -64,15 +65,15 @@ const launchClientAsCrack = async (
   versionName,
   memory
 ) => {
-  console.log(nickname, uuid, rootPath, versionName, memory);
-  console.log("Installing!");
+  logger.info(nickname, uuid, rootPath, versionName, memory);
+  logger.info("Installing!");
   const installAllTask = installer.installTask(
     await VersionManager.getVersionMeta(versionName),
     rootPath
   );
   await installAllTask.startAndWait({
     onUpdate(task) {
-      console.log(
+      logger.info(
         "onUpdate",
         task.name,
         installAllTask.progress,
@@ -80,16 +81,16 @@ const launchClientAsCrack = async (
       );
     },
     onFailed(task, error) {
-      console.log("onFailed", task.name, error);
+      logger.info("onFailed", task.name, error);
     },
     onSuccessed(task, result) {
-      console.log("onSuccessed", task.name, result);
+      logger.info("onSuccessed", task.name, result);
     },
     onCancelled(task) {
-      console.log("onCancelled", task.name);
+      logger.info("onCancelled", task.name);
     },
   });
-  console.log("Starting!");
+  logger.info("Starting!");
   const javaPath =
     "C:\\Program Files\\Eclipse Adoptium\\jre-17.0.6.10-hotspot\\bin\\java.exe";
   // TODO: repair java path wtf
@@ -109,9 +110,9 @@ const launchClientAsCrack = async (
 };
 
 const downloadOnly = async (rootPath, versionName, cb) => {
-  console.log(rootPath, versionName);
+  logger.info(rootPath, versionName);
 
-  console.log("Installing!");
+  logger.info("Installing!");
   const installAllTask = installer.installTask(
     await VersionManager.getVersionMeta(versionName),
     rootPath
@@ -130,7 +131,7 @@ const downloadOnly = async (rootPath, versionName, cb) => {
   });
 
   cb = () => {};
-  console.log("InstallAllTask Done.");
+  logger.info("InstallAllTask Done.");
   return;
 };
 

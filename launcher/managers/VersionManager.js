@@ -88,14 +88,14 @@ const getVersionMeta = async (versionId) => {
 
 // ! tests
 // (async () => {
-//   console.log(await getInstalledVersions());
-//       console.log(await getAvailableVersions("snapshot"));
-//       console.log(await getAvailableVersions("old_alpha"));
+//   logger.info(await getInstalledVersions());
+//       logger.info(await getAvailableVersions("snapshot"));
+//       logger.info(await getAvailableVersions("old_alpha"));
 //   const versions = await getAvailableVersions("release");
-//   console.log(versions);
-//   console.log(versions["1.8.9"]);
-//   console.log(await downloadVersionJson(versions["1.8.9"]));
-//   console.log(await getVersionMeta("aaa"));
+//   logger.info(versions);
+//   logger.info(versions["1.8.9"]);
+//   logger.info(await downloadVersionJson(versions["1.8.9"]));
+//   logger.info(await getVersionMeta("aaa"));
 // })();
 
 module.exports = {

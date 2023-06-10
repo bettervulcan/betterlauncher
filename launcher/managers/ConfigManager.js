@@ -1,5 +1,6 @@
 const FileManager = require("./FileManager");
 const process = require("process");
+const logger = require("./../../logger");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
@@ -28,7 +29,7 @@ const saveConfig = async (configPath = config.rootPath) => {
       path.join(configPath, "better.config"),
       JSON.stringify(config)
     );
-    console.log(
+    logger.info(
       `Config saved successfully to  ${path.join(configPath, "better.config")}`
     );
     return config;
@@ -39,13 +40,13 @@ const saveConfig = async (configPath = config.rootPath) => {
 
 const loadConfig = () => {
   if (!isConfigExist()) {
-    console.log("Config doesn't exist");
+    logger.info("Config doesn't exist");
     return saveConfig();
   }
   config = JSON.parse(
     fs.readFileSync(path.join(config.rootPath, "better.config"))
   );
-  console.log(
+  logger.info(
     `Config loaded successfuly from ${path.join(
       config.rootPath,
       "better.config"

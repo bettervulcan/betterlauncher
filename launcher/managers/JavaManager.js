@@ -1,5 +1,6 @@
 // TODO IT WILL DOWNLAD JAVA, CHECK LOCATION AND RUN JAR
 const process = require("child_process");
+const logger = require("./../../logger");
 const path = require("path");
 const os = require("os");
 
@@ -31,7 +32,7 @@ const getJavaExecPath = () => {
 };
 
 const executeJar = async (jarPath, javaArgs = "", cb = () => {}) => {
-  console.log(
+  logger.info(
     "Running",
     jarPath,
     " with java ",
@@ -54,7 +55,7 @@ const executeJar = async (jarPath, javaArgs = "", cb = () => {}) => {
 
 // ! test
 // (async () => {
-//   console.log(path.join(await getJavaExecPath()));
+//   logger.info(path.join(await getJavaExecPath()));
 // })();
 
 module.exports = { getJavaExecPath, executeJar };

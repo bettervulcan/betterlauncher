@@ -1,15 +1,16 @@
 const DiscordRPC = require("discord-rpc");
+const logger = require("./../../logger");
 const clientId = "1106998157772075058";
 var rpc;
 
 const setupRPC = (cb) => {
-  console.log("Trying setup Discord RPC.");
+  logger.info("Trying setup Discord RPC.");
   DiscordRPC.register(clientId);
 
   rpc = new DiscordRPC.Client({ transport: "ipc" });
   try {
     rpc.on("ready", async () => {
-      console.log(`Connected to Discord as ${rpc.user.username}`);
+      logger.info(`Connected to Discord as ${rpc.user.username}`);
       cb(true, rpc.user);
       let emojis = ["😀", "🌳", "⛏️", "🗡️", "🛖", "🐉", "🔥", "💀", "🪁", "💎"],
         emojiIndex = 0,

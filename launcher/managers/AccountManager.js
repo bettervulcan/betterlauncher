@@ -1,5 +1,6 @@
 const ConfigManager = require("./ConfigManager");
 const FileManager = require("./FileManager");
+const logger = require("./../../logger");
 const path = require("path");
 const fs = require("fs");
 
@@ -17,7 +18,7 @@ const saveAccounts = async () => {
       await accountsFilePath(),
       accountsJSON
     );
-    console.log(`Accounts saved successfully to ${await accountsFilePath()}`);
+    logger.info(`Accounts saved successfully to ${await accountsFilePath()}`);
     return accounts;
   } catch (error) {
     throw new Error(`Error saving accounts.\n${error}`);
@@ -26,13 +27,13 @@ const saveAccounts = async () => {
 
 const loadAccounts = async () => {
   if (!(await isAccountsExist())) {
-    console.log("Accounts doesn't exist");
+    logger.info("Accounts doesn't exist");
     return await saveAccounts();
   }
   try {
     const accountsData = await fs.promises.readFile(await accountsFilePath());
     Object.assign(accounts, JSON.parse(accountsData));
-    console.log(
+    logger.info(
       `Accounts loaded successfully from ${await accountsFilePath()}`
     );
     return accounts;
@@ -62,7 +63,7 @@ const addAccount = async (accountObj) => {
       accounts.accounts.push(accountObj);
       await saveAccounts();
     } else {
-      console.log(accountObj.displayName, "already exists");
+      logger.info(accountObj.displayName, "already exists");
     }
   } catch (error) {
     throw new Error("Error adding account to accounts.json file.");

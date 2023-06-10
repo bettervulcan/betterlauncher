@@ -4,38 +4,19 @@ const AccountsManager = require("./launcher/managers/AccountManager");
 const VersionManager = require("./launcher/managers/VersionManager");
 const OptifineScraper = require("./launcher/utils/OptifineScraper");
 const ConfigManager = require("./launcher/managers/ConfigManager");
-const FileManager = require("./launcher/managers/FileManager");
 const JavaManager = require("./launcher/managers/JavaManager");
 const DiscordRPC = require("./launcher/utils/DiscordRPC");
 const LauncherMain = require("./launcher/Launcher");
 const isDev = require("electron-is-dev");
+const logger = require("./logger");
 const process = require("process");
 const crypto = require("crypto");
 const path = require("path");
 const os = require("os");
-const fs = require("fs");
 
 app.disableHardwareAcceleration();
 
-const logsFile = path.join(
-  ConfigManager.getVariable("rootPath"),
-  "better",
-  "latest.log"
-);
-FileManager.createIfNotExistFile(logsFile);
-
-const logListeners = [];
-
-const log = console.log;
-console.log = async (...args) => {
-  log(...args);
-  fs.appendFileSync(logsFile, args.join(" ") + "\n", "utf-8");
-  logListeners.forEach((listener) => {
-    listener(...args);
-  });
-};
-
-console.log(`Logs in ${logsFile} dir c:`);
+logger.info(`Logs in ${logger.logsFile} dir`);
 
 const launchOptions = {
   accountObjSelected: "",
@@ -44,12 +25,12 @@ const launchOptions = {
 };
 
 if (isDev) {
-  console.log("Running in development");
+  logger.info("Running in development");
   require("electron-reload")(__dirname, {
     electron: require(`${__dirname}/node_modules/electron`),
   });
 } else {
-  console.log("Running in production");
+  logger.info("Running in production");
 }
 
 require("ejs-electron");
@@ -97,7 +78,7 @@ const createWindow = () => {
       });
     });
   } catch (error) {
-    console.log("Discord RPC failed");
+    logger.info("Discord RPC failed");
   }
 };
 
@@ -135,7 +116,7 @@ ipcMain.on("openLoginMS", (event) => {
       event.sender.send("statusLoginMS", "Success");
     })
     .catch((err) => {
-      console.log("err", err); // ? on gui cloased or something xD
+      logger.info("err", err); // ? on gui cloased or something xD
       if (err === "error.gui.closed")
         return event.sender.send("statusLoginMS", `Przerwano logowanie`);
       event.sender.send("statusLoginMS", `Error ${JSON.stringify(err)}`);
@@ -163,7 +144,7 @@ ipcMain.on("selectedAccount", async (event, arg) => {
   launchOptions.accountObjSelected = await AccountsManager.getAccountByUUID(
     arg
   );
-  console.log("zalogowano na konto", launchOptions.accountObjSelected);
+  logger.info("zalogowano na konto", launchOptions.accountObjSelected);
   await AccountsManager.setLastAccount(arg);
 });
 
@@ -179,7 +160,7 @@ ipcMain.on("getLastVersions", async (event) => {
 ipcMain.on("selectedVersion", async (event, arg) => {
   await VersionManager.addLastVersion(arg);
   launchOptions.versionNameSelected = arg;
-  console.log("wybrano wersje:", launchOptions.versionNameSelected);
+  logger.info("wybrano wersje:", launchOptions.versionNameSelected);
 });
 
 ipcMain.on("getInstalledVersions", async (event) => {
@@ -354,14 +335,14 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
     ConfigManager.getVariable("rootPath"),
     mcNormalized,
     async (type, args) => {
-      console.log(type, args);
+      logger.info(type, args);
       lastOFWindow.webContents.send("updateDownloadMC", {
         version: { mc: mcNormalized, optifine },
         progrss: (args.index / args.total) * 100,
       });
     }
   );
-  console.log(`Downloading optifine ${mc} ${optifine}...`);
+  logger.info(`Downloading optifine ${mc} ${optifine}...`);
   await OptifineScraper.downloadInstaller(
     (
       await OptifineScraper.scrapSite()
@@ -373,7 +354,7 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 });
 
 ipcMain.on("saveOptions", (event, args) => {
-  console.log(args);
+  logger.info(args);
   launchOptions.memorySelected = args.ram;
   // TODO SEND JAVA PATH (args.java) TO JAVA MANAGER (replace the \n to "" on the end)
   if (ConfigManager.getVariable("rootPath") !== path.join(args.game)) {
@@ -452,7 +433,7 @@ ipcMain.on("runClient", async () => {
       path.join(await ConfigManager.getVariable("rootPath")),
       launchOptions.versionNameSelected,
       launchOptions.memorySelected
-    ).catch(console.log);
+    ).catch(logger.info);
   } else {
     await LauncherMain.launchClientAsCrack(
       launchOptions.accountObjSelected.displayName,
@@ -460,6 +441,6 @@ ipcMain.on("runClient", async () => {
       path.join(await ConfigManager.getVariable("rootPath")),
       launchOptions.versionNameSelected,
       launchOptions.memorySelected
-    ).catch(console.log);
+    ).catch(logger.info);
   }
 });
