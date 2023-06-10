@@ -1,7 +1,8 @@
-const config = require("gmll/config");
+const VersionManager = require("./managers/VersionManager");
+const core = require("@xmcl/core");
+const installer = require("@xmcl/installer");
+const user = require("@xmcl/user");
 const { Auth } = require("msmc");
-const gmll = require("gmll");
-const { Instance } = gmll;
 
 const authManager = new Auth("select_account");
 
@@ -10,22 +11,52 @@ const openLoginMS = () => {
 };
 
 const launchClient = async (refreshToken, rootPath, versionName, memory) => {
-  // TODO ADD MEMORY SUPPORT
   console.log(refreshToken, rootPath, versionName, memory);
   const xboxManager = await authManager.refresh(refreshToken);
   const token = await xboxManager.getMinecraft();
-  console.log("Starting!");
-  config.setRoot(rootPath);
-  gmll.init().then(async () => {
-    var int = new Instance({
-      version: versionName,
-      ram: memory,
-    });
-    int.launch(token.gmll());
+  console.log("Installing!");
+  const installAllTask = installer.installTask(
+    await VersionManager.getVersionMeta(versionName),
+    rootPath
+  );
+  await installAllTask.startAndWait({
+    onUpdate(task) {
+      console.log(
+        "onUpdate",
+        task.name,
+        installAllTask.progress,
+        installAllTask.total
+      );
+    },
+    onFailed(task, error) {
+      console.log("onFailed", task.name, error);
+    },
+    onSuccessed(task, result) {
+      console.log("onSuccessed", task.name, result);
+    },
+    onCancelled(task) {
+      console.log("onCancelled", task.name);
+    },
   });
-
+  console.log("Starting!");
+  const javaPath =
+    "C:\\Program Files\\Eclipse Adoptium\\jre-17.0.6.10-hotspot\\bin\\java.exe";
+  // TODO: repair java path wtf
+  const game = await core.launch({
+    accessToken: token.mcToken,
+    gameProfile: token.profile,
+    gamePath: rootPath,
+    version: versionName,
+    maxMemory: memory,
+    javaPath: javaPath.toString(),
+    extraExecOption: { detached: true },
+  });
+  game.on("error", (err) => {
+    throw err;
+  });
   return;
 };
+
 const launchClientAsCrack = async (
   nickname,
   uuid,
@@ -34,56 +65,72 @@ const launchClientAsCrack = async (
   memory
 ) => {
   console.log(nickname, uuid, rootPath, versionName, memory);
-  console.log("Starting!");
-  config.setRoot(rootPath);
-  gmll.init().then(async () => {
-    var int = new Instance({
-      version: versionName,
-      ram: memory,
-    });
-    int.launch({
-      profile: {
-        id: "",
-        name: nickname,
-        demo: false,
-      },
-    });
+  console.log("Installing!");
+  const installAllTask = installer.installTask(
+    await VersionManager.getVersionMeta(versionName),
+    rootPath
+  );
+  await installAllTask.startAndWait({
+    onUpdate(task) {
+      console.log(
+        "onUpdate",
+        task.name,
+        installAllTask.progress,
+        installAllTask.total
+      );
+    },
+    onFailed(task, error) {
+      console.log("onFailed", task.name, error);
+    },
+    onSuccessed(task, result) {
+      console.log("onSuccessed", task.name, result);
+    },
+    onCancelled(task) {
+      console.log("onCancelled", task.name);
+    },
   });
+  console.log("Starting!");
+  const javaPath =
+    "C:\\Program Files\\Eclipse Adoptium\\jre-17.0.6.10-hotspot\\bin\\java.exe";
+  // TODO: repair java path wtf
 
+  const game = await core.launch({
+    gameProfile: user.offline(nickname, uuid).selectedProfile,
+    gamePath: rootPath,
+    version: versionName,
+    maxMemory: memory,
+    javaPath: javaPath.toString(),
+    extraExecOption: { detached: true },
+  });
+  game.on("error", (err) => {
+    throw err;
+  });
   return;
 };
 
 const downloadOnly = async (rootPath, versionName, cb) => {
   console.log(rootPath, versionName);
-  config.setRoot(rootPath);
-  await gmll.init().then(async () => {
-    var int = new Instance({
-      version: versionName,
-    });
-    const defEvents = config.getEventListener();
-    defEvents.on("download.setup", (cores) => cb("setup", { cores }));
-    defEvents.on("download.start", () => cb("start"));
-    defEvents.on("download.progress", (key, index, total, left) =>
-      cb("progress", { key, index, total, left })
-    );
-    defEvents.on("download.done", () => cb("done"));
-    defEvents.on("download.fail", (key, type, err) => {
-      switch (type) {
-        case "retry":
-          cb("fail.retry", { key });
-          break;
-        case "fail":
-          cb("fail.fail", { key });
-          break;
-        case "system":
-          cb("fail.system", { key, err });
-          break;
-      }
-    });
-    await int.install();
-    cb = () => {};
-    return;
+
+  console.log("Installing!");
+  const installAllTask = installer.installTask(
+    await VersionManager.getVersionMeta(versionName),
+    rootPath
+  );
+  await installAllTask.startAndWait({
+    onUpdate(task) {
+      cb("progress", {
+        name: task.name,
+        index: installAllTask.progress,
+        total: installAllTask.total,
+      });
+    },
+    onFailed(task, error) {
+      cb("onFailed", task.name, error);
+    },
   });
+
+  cb = () => {};
+  console.log("InstallAllTask Done.");
   return;
 };
 

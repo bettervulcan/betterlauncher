@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const FabricImplementation = require("./launcher/utils/FabricImplementation");
 const AccountsManager = require("./launcher/managers/AccountManager");
 const VersionManager = require("./launcher/managers/VersionManager");
 const OptifineScraper = require("./launcher/utils/OptifineScraper");
@@ -7,11 +8,14 @@ const FileManager = require("./launcher/managers/FileManager");
 const JavaManager = require("./launcher/managers/JavaManager");
 const DiscordRPC = require("./launcher/utils/DiscordRPC");
 const LauncherMain = require("./launcher/Launcher");
+const isDev = require("electron-is-dev");
 const process = require("process");
 const crypto = require("crypto");
 const path = require("path");
 const os = require("os");
 const fs = require("fs");
+
+app.disableHardwareAcceleration();
 
 const logsFile = path.join(
   ConfigManager.getVariable("rootPath"),
@@ -39,10 +43,14 @@ const launchOptions = {
   memorySelected: 2,
 };
 
-//TODO * dev only
-// require("electron-reload")(__dirname, {
-//   electron: require(`${__dirname}/node_modules/electron`),
-// });
+if (isDev) {
+  console.log("Running in development");
+  require("electron-reload")(__dirname, {
+    electron: require(`${__dirname}/node_modules/electron`),
+  });
+} else {
+  console.log("Running in production");
+}
 
 require("ejs-electron");
 
@@ -65,14 +73,14 @@ const createWindow = () => {
       devTools: true,
       preload: path.join(__dirname, "preloads", "main.js"),
     },
-    icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: "BetterLauncher",
   });
   mainWindow.loadFile(path.join(__dirname, "views", "main.ejs"));
 
   ConfigManager.loadConfig();
   AccountsManager.loadAccounts();
-  VersionManager.cacheVersions();
+  FabricImplementation.cacheFabric();
+  OptifineScraper.cacheOptifine();
   try {
     DiscordRPC.setupRPC((success, dcUser) => {
       mainWindow.webContents.on("did-finish-load", () => {
@@ -89,7 +97,7 @@ const createWindow = () => {
       });
     });
   } catch (error) {
-    console.log(error);
+    console.log("Discord RPC failed");
   }
 };
 
@@ -198,6 +206,8 @@ ipcMain.on("getVersionsByType", async (event, arg) => {
       );
     } else if (arg == "optifine") {
       groupedVersions = Object.values(await OptifineScraper.scrapSite());
+    } else if (arg == "fabric") {
+      groupedVersions = [];
     } else {
       groupedVersions = Object.values(
         await VersionManager.getAvailableVersions(arg)
@@ -237,6 +247,12 @@ ipcMain.on("getVersionsByType", async (event, arg) => {
             versionout[mainversion].push(version.name);
           }
         });
+        break;
+      case "fabric":
+        event.returnValue = [
+          await FabricImplementation.getMcVersions(),
+          await FabricImplementation.getLoaders(),
+        ];
         break;
       case "optifine":
         groupedVersions.forEach((version) => {
@@ -286,7 +302,7 @@ ipcMain.on("getOptionsInfo", async (event) => {
       },
       java: { path: await JavaManager.getJavaExecPath() },
       game: { dir: await ConfigManager.getVariable("rootPath") },
-      javaArgs: process.env._JAVA_OPTIONS,
+      javaArgs: process.env._JAVA_OPTIONS ? undefined : "",
     };
   } catch (error) {
     event.returnValue = undefined;
@@ -305,7 +321,6 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
       devTools: true,
       preload: path.join(__dirname, "preloads", "optifine.js"),
     },
-    icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: `Optifine ${mc} ${optifine} Downloader`,
     parent: mainWindow,
     autoHideMenuBar: true,
@@ -324,8 +339,6 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
 
   logListeners.push(onLog);
 
-  let doneCount = 0;
-
   let mcNormalized = mc;
   if (mc.slice(mc.length - 2) == ".0") {
     mcNormalized = mc.slice(0, mc.length - 2);
@@ -342,34 +355,19 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
     mcNormalized,
     async (type, args) => {
       console.log(type, args);
-      switch (type) {
-        case "progress":
-          lastOFWindow.webContents.send("updateDownloadMC", {
-            version: { mc: mcNormalized, optifine },
-            progrss: (args.index / args.total) * 100,
-            doneCount,
-          });
-          break;
-        case "done":
-          doneCount++;
-          lastOFWindow.webContents.send("updateDownloadMC", {
-            version: { mc: mcNormalized, optifine },
-            doneCount,
-          });
-
-          if (doneCount == 3) {
-            console.log(`Downloading optifine ${mc} ${optifine}...`);
-            await OptifineScraper.downloadInstaller(
-              (
-                await OptifineScraper.scrapSite()
-              )[mc][optifine],
-              (data) => {
-                lastOFWindow.webContents.send("updateDownloadOF", data);
-              }
-            );
-          }
-          break;
-      }
+      lastOFWindow.webContents.send("updateDownloadMC", {
+        version: { mc: mcNormalized, optifine },
+        progrss: (args.index / args.total) * 100,
+      });
+    }
+  );
+  console.log(`Downloading optifine ${mc} ${optifine}...`);
+  await OptifineScraper.downloadInstaller(
+    (
+      await OptifineScraper.scrapSite()
+    )[mc][optifine],
+    (data) => {
+      lastOFWindow.webContents.send("updateDownloadOF", data);
     }
   );
 });
@@ -385,6 +383,7 @@ ipcMain.on("saveOptions", (event, args) => {
     ConfigManager.saveConfig();
   }
   // TODO USE CUSTOM/GLOBAL JAVA ARGS
+  process.env._JAVA_OPTIONS = args.args;
 });
 
 ipcMain.on("getDir", async (event, isJava, defaultLocation) => {
@@ -429,7 +428,6 @@ ipcMain.on("runClient", async () => {
       devTools: true,
       preload: path.join(__dirname, "preloads", "logs.js"),
     },
-    icon: path.join(__dirname, "assets", "icons", "logo.ico"),
     title: `Running ${launchOptions.versionNameSelected} as ${launchOptions.accountObjSelected.displayName}`,
     parent: mainWindow,
     autoHideMenuBar: true,

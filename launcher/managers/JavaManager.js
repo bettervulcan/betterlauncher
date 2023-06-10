@@ -10,9 +10,9 @@ const getJavaExecPath = () => {
       if (output === "INFO: Could not find files for the given pattern(s).\n")
         throw new Error("No java avalible");
       if (output.includes("\n")) {
-        return output.split("\n")[0];
+        return path.join(output.split("\n")[0]);
       }
-      return output;
+      return path.join(output);
     } catch (err) {
       throw new Error(`Error running java command.\n${err}`);
     }
@@ -21,9 +21,9 @@ const getJavaExecPath = () => {
       const output = process.execSync("which java").toString();
       if (output.includes("not found")) throw new Error("No java avalible");
       if (output.includes("\n")) {
-        return output.split("\n")[0];
+        return path.join(output.split("\n")[0]);
       }
-      return output;
+      return path.join(output);
     } catch (err) {
       throw new Error(`Error running java command.\n${err}`);
     }
@@ -53,8 +53,8 @@ const executeJar = async (jarPath, javaArgs = "", cb = () => {}) => {
 };
 
 // ! test
-(async () => {
-  console.log(await getJavaExecPath());
-})();
+// (async () => {
+//   console.log(path.join(await getJavaExecPath()));
+// })();
 
 module.exports = { getJavaExecPath, executeJar };

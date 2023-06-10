@@ -7,9 +7,21 @@ const fs = require("fs");
 
 const OptifineUrl = "https://optifine.net/downloads";
 
+let cache = undefined;
+
+const cacheOptifine = async () => {
+  cache = await axios.get(OptifineUrl);
+};
+
 const scrapSite = async () => {
   try {
-    const res = await axios.get(OptifineUrl);
+    let res;
+    if (cache) {
+      res = cache;
+      cacheOptifine();
+    } else {
+      res = await axios.get(OptifineUrl);
+    }
     let versions = {};
     await parse(res.data)
       .querySelectorAll("td.colMirror > a")
@@ -112,4 +124,4 @@ const downloadInstaller = (optifineObject, callback) => {
 //   console.log(await downloadInstaller(versions["1.19.3"]["I3"]));
 // })();
 
-module.exports = { scrapSite, downloadInstaller };
+module.exports = { cacheOptifine, scrapSite, downloadInstaller };

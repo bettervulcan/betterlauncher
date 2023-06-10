@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const button = document.createElement("button");
     firstTable.style.display = "block";
     button.className =
-      "relative inline-flex items-center w-full px-4 py-2 text-sm first:rounded-t-lg last:rounded-b-lg font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
+      "break-words relative inline-flex items-center w-full px-4 py-2 text-sm first:rounded-t-lg last:rounded-b-lg font-medium border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
     button.innerText = `${version}`;
     if (final) {
       button.dataset.version = version;
@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const button = document.createElement("button");
     secondTable.style.display = "block";
     button.className =
-      "relative inline-flex items-center w-full px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
+      "break-words relative inline-flex items-center w-full px-4 py-2 text-sm font-medium first:rounded-t-lg last:rounded-b-lg border-b border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-[#E384FF] dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white";
     button.innerText = `${version}`;
     button.dataset.version = version;
     button.id = "finalVersionTrigger";
@@ -360,6 +360,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("fabric");
         clearFirstTable();
         clearSecondTable();
+        window.electron.getVersionsByType("fabric")[0].forEach((versionMc) => {
+          addFirstTableVersion(versionMc);
+        });
+        document.querySelectorAll("#secondTableTrigger").forEach((trigger) => {
+          console.log(trigger);
+          trigger.addEventListener("click", () => {
+            (async () => {
+              clearSecondTable();
+              setTimeout(() => {
+                window.electron
+                  .getVersionsByType("fabric")[1]
+                  .forEach((version) => {
+                    console.log("chuj wie");
+                    addSecondTableVersion(version);
+                  });
+                refreshSelectVersionTriggers();
+              }, 100);
+            })();
+          });
+        });
         refreshSelectVersionTriggers();
         break;
       case "forge":
@@ -560,7 +580,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   gamePath.innerHTML = info.game.dir;
   javaPath.innerText = info.java.path;
   ramCount.innerText = info.memory.selected;
-  argsArea.innerText = info.javaArgs;
+  argsArea.value = info.javaArgs;
   ramSlider.value = info.memory.selected;
   ramFree.innerText = `Zostało Ci ${
     info.memory.max - info.memory.selected
@@ -598,7 +618,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         ram: ramSlider.value,
         java: javaPath.innerText,
         game: gamePath.innerText,
-        args: argsArea.innerText,
+        args: argsArea.value,
       });
     });
 

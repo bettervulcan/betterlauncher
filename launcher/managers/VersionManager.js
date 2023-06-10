@@ -1,17 +1,7 @@
 const ConfigManager = require("./ConfigManager");
-const FileManager = require("./FileManager");
-const axios = require("axios");
+const installer = require("@xmcl/installer");
 const path = require("path");
 const fs = require("fs");
-
-let cache = undefined;
-
-const VersionManifest =
-  "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json"; //,ForgeManifest = "",  FabricManifest = "";
-
-const cacheVersions = async () => {
-  cache = await axios.get(VersionManifest);
-};
 
 const getInstalledVersions = async () => {
   try {
@@ -35,21 +25,10 @@ const getInstalledVersions = async () => {
   }
 };
 
-const isVersionInstalled = async (version) => {
-  return (await getInstalledVersions()).includes(version);
-};
-
 const getAvailableVersions = async (type) => {
   try {
-    let res;
-    if (cache) {
-      res = cache;
-    } else {
-      res = await axios.get(VersionManifest);
-    }
-
     let versionList = [];
-    res.data.versions.forEach((version) => {
+    (await installer.getVersionList()).versions.forEach((version) => {
       if (version.type != type) return;
       versionList[version.id] = { name: version.id, url: version.url };
     });
@@ -57,37 +36,6 @@ const getAvailableVersions = async (type) => {
   } catch (error) {
     throw new Error(`Error getting avalible ${type} versions.\n${error}`);
   }
-};
-
-const downloadVersionJson = (versionObject) => {
-  axios({
-    method: "get",
-    url: versionObject.url,
-    responseType: "stream",
-  })
-    .then(async (response) => {
-      await FileManager.createIfNotExistFile(
-        path.join(
-          (await ConfigManager.getVariable("rootPath")) + "versions",
-          versionObject.name,
-          versionObject.name + ".json"
-        )
-      );
-      await response.data.pipe(
-        fs.createWriteStream(
-          path.join(
-            await ConfigManager.getVariable("rootPath"),
-            "versions",
-            versionObject.name,
-            versionObject.name + ".json"
-          )
-        )
-      );
-      return;
-    })
-    .catch(() => {
-      throw new Error(`Error downloading ${versionObject.url}`);
-    });
 };
 
 const updateConfig = async (lastVersions) => {
@@ -126,6 +74,18 @@ const getLastVersions = async () => {
   }
 };
 
+const getVersionMeta = async (versionId) => {
+  try {
+    const version = (await installer.getVersionList()).versions.filter(
+      (version) => version.id == versionId
+    )[0];
+    if (!version) throw new Error(`Error: No meta for ${versionId}.`);
+    return version;
+  } catch (error) {
+    throw new Error(`Error: Get ${versionId} meta.\n${error}`);
+  }
+};
+
 // ! tests
 // (async () => {
 //   console.log(await getInstalledVersions());
@@ -135,14 +95,13 @@ const getLastVersions = async () => {
 //   console.log(versions);
 //   console.log(versions["1.8.9"]);
 //   console.log(await downloadVersionJson(versions["1.8.9"]));
+//   console.log(await getVersionMeta("aaa"));
 // })();
 
 module.exports = {
-  cacheVersions,
   getInstalledVersions,
-  isVersionInstalled,
   getAvailableVersions,
-  downloadVersionJson,
   addLastVersion,
   getLastVersions,
+  getVersionMeta,
 };

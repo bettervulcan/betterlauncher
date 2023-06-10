@@ -73,7 +73,7 @@
   data-modal-backdrop="static"
   tabindex="-1"
   aria-hidden="true"
-  class="fixed top-0 hidden animate-opacityAnimation left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full"
+  class="fixed hidden top-0 animate-opacityAnimation left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] md:h-full"
 >
   <div class="relative w-full h-full max-w-2xl md:h-auto">
     <!-- Modal content -->
@@ -246,9 +246,11 @@
             </button>
           </div>
         </div>
-        <div class="flex items-center ml-4 w-[30%]">
-          <div class="h-[100%]">
-            <div class="float-left overflow-y-scroll scrollbar h-full">
+        <div class="items-center ml-4 w-[30%]">
+          <div class="h-[100%] w-full">
+            <div
+              class="float-left overflow-y-scroll scrollbar h-full w-full overflow-x-hidden"
+            >
               <div
                 id="firstTable"
                 class="w-full text-gray-900 border border-gray-200 rounded-lg bg-[#191825] dark:border-gray-600 dark:text-white"
@@ -256,9 +258,11 @@
             </div>
           </div>
         </div>
-        <div class="flex items-center ml-4 w-[30%]">
-          <div class="h-full">
-            <div class="float-left overflow-y-scroll scrollbar h-[89%]">
+        <div class="items-center ml-4 w-[30%]">
+          <div class="h-[100%] w-full">
+            <div
+              class="float-left overflow-y-scroll scrollbar h-full w-full overflow-x-hidden"
+            >
               <div
                 id="secondTable"
                 class="w-full text-gray-900 border border-gray-200 rounded-lg bg-[#191825] dark:border-gray-600 dark:text-white"

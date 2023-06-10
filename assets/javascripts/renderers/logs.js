@@ -1,7 +1,5 @@
 console.log("Loading renderer");
 
-let backup = console;
-
 var pre = document.createElement("pre"),
   code = document.createElement("code");
 
@@ -9,10 +7,17 @@ pre.appendChild(code);
 document.body.appendChild(pre);
 
 function print(object) {
-  var s = typeof object === "string" ? object : JSON.stringify(object),
-    span = document.createElement("span"),
-    text = document.createTextNode(s + "\n");
-  backup.log(s);
+  const out = [];
+  object.forEach((arg) => {
+    if (typeof arg === "string") {
+      out.push(arg);
+    } else {
+      out.push(JSON.stringify(arg));
+    }
+  });
+  const span = document.createElement("span");
+  const text = document.createTextNode(out.join(" ") + "\n");
+  console.log(out.join(" "));
 
   span.appendChild(text);
   code.appendChild(span);
