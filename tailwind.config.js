@@ -21,4 +21,5 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animated"), require("tailwind-fontawesome")],
+  darkMode: "class",
 };

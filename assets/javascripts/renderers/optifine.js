@@ -48,16 +48,12 @@ const setScreensState = (screen) => {
 
 setScreensState("mc");
 
-window.electron.updateDownloadMC((event, { version, progrss, doneCount }) => {
-  console.log("MC:", version, progrss, doneCount);
+window.electron.updateDownloadMC((event, { version, progrss }) => {
+  console.log("MC:", version, progrss);
   setScreensState("mc");
   if (version) {
     versionBackup = version;
-    if (doneCount) {
-      optifineHeader.innerText = `Minecraft ${version.mc} ${doneCount}/3`;
-    } else {
-      optifineHeader.innerText = `Minecraft ${version.mc}`;
-    }
+    optifineHeader.innerText = `Minecraft ${version.mc}`;
   }
   if (progrss) {
     progressBar.innerText = Math.round(progrss) + "%";

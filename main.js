@@ -18,6 +18,8 @@ app.disableHardwareAcceleration();
 
 logger.info(`Logs in ${logger.logsFile} dir`);
 
+let logListener;
+
 const launchOptions = {
   accountObjSelected: "",
   versionNameSelected: "",
@@ -54,6 +56,7 @@ const createWindow = () => {
       devTools: true,
       preload: path.join(__dirname, "preloads", "main.js"),
     },
+    darkTheme: true,
     title: "BetterLauncher",
   });
   mainWindow.loadFile(path.join(__dirname, "views", "main.ejs"));
@@ -144,7 +147,9 @@ ipcMain.on("selectedAccount", async (event, arg) => {
   launchOptions.accountObjSelected = await AccountsManager.getAccountByUUID(
     arg
   );
-  logger.info("zalogowano na konto", launchOptions.accountObjSelected);
+  logger.info(
+    `zalogowano na konto ${launchOptions.accountObjSelected.displayName}`
+  );
   await AccountsManager.setLastAccount(arg);
 });
 
@@ -160,7 +165,7 @@ ipcMain.on("getLastVersions", async (event) => {
 ipcMain.on("selectedVersion", async (event, arg) => {
   await VersionManager.addLastVersion(arg);
   launchOptions.versionNameSelected = arg;
-  logger.info("wybrano wersje:", launchOptions.versionNameSelected);
+  logger.info(`wybrano wersje: ${launchOptions.versionNameSelected}`);
 });
 
 ipcMain.on("getInstalledVersions", async (event) => {
@@ -302,6 +307,7 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
       devTools: true,
       preload: path.join(__dirname, "preloads", "optifine.js"),
     },
+    darkTheme: true,
     title: `Optifine ${mc} ${optifine} Downloader`,
     parent: mainWindow,
     autoHideMenuBar: true,
@@ -314,11 +320,11 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
     try {
       lastOFWindow.webContents.send("log", ...logs);
     } catch (error) {
-      logListeners.splice(0, logListeners.length);
+      logListener = undefined;
     }
   };
 
-  logListeners.push(onLog);
+  logListener = onLog;
 
   let mcNormalized = mc;
   if (mc.slice(mc.length - 2) == ".0") {
@@ -335,14 +341,16 @@ ipcMain.on("downloadOptifine", async (event, mc, optifine) => {
     ConfigManager.getVariable("rootPath"),
     mcNormalized,
     async (type, args) => {
-      logger.info(type, args);
+      logListener(type, args);
+      onLog(type, args);
       lastOFWindow.webContents.send("updateDownloadMC", {
         version: { mc: mcNormalized, optifine },
         progrss: (args.index / args.total) * 100,
       });
     }
   );
-  logger.info(`Downloading optifine ${mc} ${optifine}...`);
+  logger.info(`Downloading Optifine ${mc} ${optifine}...`);
+  onLog(`Downloading Optifine ${mc} ${optifine}...`);
   await OptifineScraper.downloadInstaller(
     (
       await OptifineScraper.scrapSite()
@@ -409,6 +417,7 @@ ipcMain.on("runClient", async () => {
       devTools: true,
       preload: path.join(__dirname, "preloads", "logs.js"),
     },
+    darkTheme: true,
     title: `Running ${launchOptions.versionNameSelected} as ${launchOptions.accountObjSelected.displayName}`,
     parent: mainWindow,
     autoHideMenuBar: true,
@@ -419,28 +428,49 @@ ipcMain.on("runClient", async () => {
 
   const onLog = (...logs) => {
     try {
-      logsWindow.webContents.send("log", ...logs);
+      if (logs[0] == "log")
+        logsWindow.webContents.send("logMC", ...logs.slice(-1));
+      if (logs[0] == "install") {
+        logsWindow.webContents.send("log", logs[1]);
+        logsWindow.webContents.send("updateDownloadMC", {
+          progrss: logs[4],
+        });
+      }
     } catch (error) {
-      logListeners.splice(0, logListeners.length);
+      logListener = undefined;
     }
   };
 
-  logListeners.push(onLog);
+  logListener = onLog;
 
   if (launchOptions.accountObjSelected.premium) {
     await LauncherMain.launchClient(
       launchOptions.accountObjSelected.refreshToken,
       path.join(await ConfigManager.getVariable("rootPath")),
       launchOptions.versionNameSelected,
-      launchOptions.memorySelected
-    ).catch(logger.info);
+      launchOptions.memorySelected,
+      (...logs) => {
+        if (typeof logListener == "function") logListener(...logs);
+      }
+    ).catch(logger.error);
   } else {
     await LauncherMain.launchClientAsCrack(
       launchOptions.accountObjSelected.displayName,
       launchOptions.accountObjSelected.uuid,
       path.join(await ConfigManager.getVariable("rootPath")),
       launchOptions.versionNameSelected,
-      launchOptions.memorySelected
-    ).catch(logger.info);
+      launchOptions.memorySelected,
+      (...logs) => {
+        if (typeof logListener == "function") logListener(...logs);
+      }
+    ).catch(logger.error);
   }
+});
+
+process.on("unhandledRejection", (err, origin) => {
+  logger.error(err, origin);
+});
+
+process.on("uncaughtException", (err, origin) => {
+  logger.error(err, origin);
 });

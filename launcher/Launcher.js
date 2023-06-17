@@ -1,5 +1,7 @@
 const VersionManager = require("./managers/VersionManager");
+const JavaManager = require("./managers/JavaManager");
 const installer = require("@xmcl/installer");
+const xml2js = require("xml2js");
 const core = require("@xmcl/core");
 const user = require("@xmcl/user");
 const logger = require("./../logger");
@@ -11,22 +13,30 @@ const openLoginMS = () => {
   return authManager.launch("electron");
 };
 
-const launchClient = async (refreshToken, rootPath, versionName, memory) => {
+const launchClient = async (
+  refreshToken,
+  rootPath,
+  versionName,
+  memory,
+  cb
+) => {
   logger.info(refreshToken, rootPath, versionName, memory);
   const xboxManager = await authManager.refresh(refreshToken);
   const token = await xboxManager.getMinecraft();
   logger.info("Installing!");
+  cb("install", "Installing!");
   const installAllTask = installer.installTask(
     await VersionManager.getVersionMeta(versionName),
     rootPath
   );
   await installAllTask.startAndWait({
     onUpdate(task) {
-      logger.info(
-        "onUpdate",
-        task.name,
+      cb(
+        "install",
+        `Action: ${task.name}`,
         installAllTask.progress,
-        installAllTask.total
+        installAllTask.total,
+        ((installAllTask.progress / installAllTask.total) * 100).toFixed(2)
       );
     },
     onFailed(task, error) {
@@ -40,18 +50,39 @@ const launchClient = async (refreshToken, rootPath, versionName, memory) => {
     },
   });
   logger.info("Starting!");
-  const javaPath =
-    "C:\\Program Files\\Eclipse Adoptium\\jre-17.0.6.10-hotspot\\bin\\java.exe";
-  // TODO: repair java path wtf
+  cb("install", "Starting!");
   const game = await core.launch({
     accessToken: token.mcToken,
     gameProfile: token.profile,
     gamePath: rootPath,
     version: versionName,
     maxMemory: memory,
-    javaPath: javaPath.toString(),
+    javaPath: await JavaManager.getJavaExecPath(),
     extraExecOption: { detached: true },
   });
+  logger.info(`Minecraft PID: ${game.pid}`);
+  cb("install", `Minecraft PID: ${game.pid}`);
+
+  const parser = new xml2js.Parser();
+  game.stdout.on("data", async (data) => {
+    parser.parseString(data.toString(), function (err, result) {
+      if (err) {
+        cb("log", "err");
+        return;
+      }
+      const timestamp = result["log4j:Event"]["$"]["timestamp"];
+      const level = result["log4j:Event"]["$"]["level"];
+      const thread = result["log4j:Event"]["$"]["thread"];
+      const logMessage = result["log4j:Event"]["log4j:Message"][0];
+      const date = new Date(parseInt(timestamp));
+      const formattedTime = `${("0" + date.getHours()).slice(-2)}:${(
+        "0" + date.getMinutes()
+      ).slice(-2)}:${("0" + date.getSeconds()).slice(-2)}`;
+      const formattedLog = `[${formattedTime}] [${thread}/${level}] ${logMessage}`;
+      cb("log", formattedLog);
+    });
+  });
+
   game.on("error", (err) => {
     throw err;
   });
@@ -63,7 +94,8 @@ const launchClientAsCrack = async (
   uuid,
   rootPath,
   versionName,
-  memory
+  memory,
+  cb
 ) => {
   logger.info(nickname, uuid, rootPath, versionName, memory);
   logger.info("Installing!");
@@ -73,12 +105,7 @@ const launchClientAsCrack = async (
   );
   await installAllTask.startAndWait({
     onUpdate(task) {
-      logger.info(
-        "onUpdate",
-        task.name,
-        installAllTask.progress,
-        installAllTask.total
-      );
+      cb("install", task.name, installAllTask.progress, installAllTask.total);
     },
     onFailed(task, error) {
       logger.info("onFailed", task.name, error);
@@ -91,18 +118,16 @@ const launchClientAsCrack = async (
     },
   });
   logger.info("Starting!");
-  const javaPath =
-    "C:\\Program Files\\Eclipse Adoptium\\jre-17.0.6.10-hotspot\\bin\\java.exe";
-  // TODO: repair java path wtf
-
   const game = await core.launch({
     gameProfile: user.offline(nickname, uuid).selectedProfile,
     gamePath: rootPath,
     version: versionName,
     maxMemory: memory,
-    javaPath: javaPath.toString(),
+    javaPath: await JavaManager.getJavaExecPath(),
     extraExecOption: { detached: true },
   });
+  logger.info(`Minecraft PID: ${game.pid}`);
+  game.stdout.on("readable", cb);
   game.on("error", (err) => {
     throw err;
   });
