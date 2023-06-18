@@ -51,10 +51,12 @@ const isAccountsExist = async () => {
 };
 
 const isNewAccount = async (accountObj) => {
+  return await isNewAccountByUUID(accountObj.uuid);
+};
+
+const isNewAccountByUUID = async (uuid) => {
   const accountsList = await getAccountsList();
-  return !accountsList.accounts.some(
-    (account) => account.uuid === accountObj.uuid
-  );
+  return !accountsList.accounts.some((account) => account.uuid === uuid);
 };
 
 const addAccount = async (accountObj) => {
@@ -63,10 +65,26 @@ const addAccount = async (accountObj) => {
       accounts.accounts.push(accountObj);
       await saveAccounts();
     } else {
-      logger.info(accountObj.displayName, "already exists");
+      logger.info(`${accountObj.displayName} already exists`);
     }
   } catch (error) {
     throw new Error("Error adding account to accounts.json file.");
+  }
+};
+
+const removeAccountByUUID = async (uuid) => {
+  try {
+    if (!(await isNewAccountByUUID(uuid))) {
+      accounts.accounts.splice(
+        await accounts.accounts.findIndex((account) => account.uuid === uuid),
+        1
+      );
+      await saveAccounts();
+    } else {
+      logger.info(`${uuid} no exists`);
+    }
+  } catch (error) {
+    throw new Error("Error removing account from accounts.json file.");
   }
 };
 
@@ -95,7 +113,9 @@ const getAccountByUUID = async (uuid) => {
       throw new Error(`Account ${uuid} doesn't exist.`);
     }
   } catch (error) {
-    throw new Error("Error getting account by UUID from accounts.json file.");
+    throw new Error(
+      `Error getting account by UUID(${uuid}) from accounts.json file.`
+    );
   }
 };
 
@@ -113,6 +133,7 @@ const setLastAccount = async (uuid) => {
 module.exports = {
   loadAccounts,
   saveAccounts,
+  removeAccountByUUID,
   addAccount,
   getAccountsList,
   getAccountByUUID,

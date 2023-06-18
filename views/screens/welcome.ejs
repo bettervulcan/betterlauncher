@@ -76,7 +76,26 @@
           class="py-2 text-sm text-gray-700 dark:text-gray-200"
           aria-labelledby="dropdownDefaultButton"
           id="accountsList"
-        ></ul>
+        >
+          <li>
+            <a
+              id="selectAccountTrigger"
+              data-mc-uuid="${account.uuid}"
+              class="flex justify-center items-center cursor-pointer font-bold px-4 py-2 select-text hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"
+            >
+              <div>
+                <img
+                  src="https://mc-heads.net/avatar/Majek_PL"
+                  width="24"
+                  alt=""
+                />
+              </div>
+              <p class="mx-1">Majus</p>
+              <div>
+                <i class="fa-sharp fa-solid fa-trash"></i></div
+            ></a>
+          </li>
+        </ul>
         <div
           onclick="dropdownAccountButton.click()"
           class="py-2"

@@ -57,6 +57,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           statusRun.classList.remove("text-[#865DFF]");
           statusLogin.childNodes[1].childNodes[1].classList.add("hidden");
           statusVersion.childNodes[1].childNodes[1].classList.add("hidden");
+          statusLogin.classList.remove("cursor-pointer");
+          statusVersion.classList.remove("cursor-pointer");
+          statusRun.classList.remove("cursor-pointer");
           break;
         case "version":
           statusLogin.classList.remove("text-[#865DFF]");
@@ -64,6 +67,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           statusRun.classList.remove("text-[#865DFF]");
           statusLogin.childNodes[1].childNodes[1].classList.remove("hidden");
           statusVersion.childNodes[1].childNodes[1].classList.add("hidden");
+          statusLogin.classList.add("cursor-pointer");
+          statusVersion.classList.remove("cursor-pointer");
+          statusRun.classList.remove("cursor-pointer");
           break;
         case "run":
           statusLogin.classList.remove("text-[#865DFF]");
@@ -71,6 +77,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           statusRun.classList.add("text-[#865DFF]");
           statusLogin.childNodes[1].childNodes[1].classList.remove("hidden");
           statusVersion.childNodes[1].childNodes[1].classList.remove("hidden");
+          statusLogin.classList.add("cursor-pointer");
+          statusVersion.classList.add("cursor-pointer");
+          statusRun.classList.remove("cursor-pointer");
           break;
       }
     }, 600);
@@ -95,8 +104,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     accountsList.innerHTML = "";
     await window.electron.getAccounts().accounts.forEach((account) => {
       const li = document.createElement("li");
-      li.innerHTML = `<a id="selectAccountTrigger" data-mc-uuid="${account.uuid}" class="block cursor-pointer font-bold px-4 py-2 select-text hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"> ${account.displayName}</a>`;
-      // TODO HEAD ICON AND TRASH CAN TO DELETE
+      const a = document.createElement("a");
+      a.setAttribute("id", "selectAccountTrigger");
+      a.setAttribute("data-mc-uuid", account.uuid);
+      a.setAttribute(
+        "class",
+        "flex justify-center items-center cursor-pointer font-bold px-4 py-2 select-text hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"
+      );
+      const div1 = document.createElement("div");
+      const img = document.createElement("img");
+      img.setAttribute(
+        "src",
+        `https://mc-heads.net/avatar/${account.displayName}`
+      );
+      img.setAttribute("width", "24");
+      img.setAttribute("alt", "");
+      img.setAttribute("class", "min-w-6");
+
+      div1.appendChild(img);
+      const p = document.createElement("p");
+      p.setAttribute("class", "mx-1");
+      p.textContent = account.displayName;
+      const div2 = document.createElement("div");
+      const i = document.createElement("i");
+      i.setAttribute("class", "w-5 h-3 fa-sharp fa-solid fa-trash");
+      div2.appendChild(i);
+      div2.addEventListener("click", (event) => {
+        event.stopPropagation();
+        window.electron.removeAccount(account.uuid);
+        dropdownAccountButton.click();
+        setTimeout(() => {
+          dropdownAccountButton.click();
+        }, 150);
+      });
+      a.appendChild(div1);
+      a.appendChild(p);
+      a.appendChild(div2);
+      li.appendChild(a);
       accountsList.appendChild(li);
     });
 
@@ -120,7 +164,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     versionsList.innerHTML = "";
     await window.electron.getLastVersions().forEach((version) => {
       const li = document.createElement("li");
-      li.innerHTML = `<a id="selectVerionTrigger" data-mc-uuid="${version}" class="block font-bold px-4 py-2 select-text hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"> ${version}</a>`;
+      li.innerHTML = `<a id="selectVerionTrigger" data-mc-uuid="${version}" class="block cursor-pointer font-bold px-4 py-2 hover:bg-[#865DFF] dark:hover:text-white hover:transition-all transition-all duration-300"> ${version}</a>`;
       versionsList.appendChild(li);
     });
 
@@ -176,6 +220,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           loadingContainer.classList.add("scale-[180]");
           loadingTask.innerText = "Logowanie...";
         });
+        if (data == "Success")
+          setTimeout(() => {
+            dropdownAccountButton.click();
+          }, 150);
       }, 1500);
     });
   });
@@ -436,6 +484,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             document
               .querySelectorAll(`[data-modal-hide="staticModal"]`)
               .forEach((closeBtn) => {
+                setTimeout(() => {
+                  dropdownVersionButton.click();
+                }, 150);
                 closeBtn.click();
               });
           }
@@ -558,12 +609,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   addCrackFinish.addEventListener("click", () => {
     checkPremium();
     if (lengthPass && charsPass && premiumPass) {
-      if (premiumCheckInterval) clearInterval(premiumCheckInterval);
       window.electron.useCrack(nicknameInput.value);
       document
         .querySelectorAll(`[data-modal-hide="offlineAccounts"]`)
         .forEach((closeBtn) => {
+          if (premiumCheckInterval) clearInterval(premiumCheckInterval);
           closeBtn.click();
+          setTimeout(() => {
+            dropdownAccountButton.click();
+          }, 150);
         });
     }
   });

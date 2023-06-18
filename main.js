@@ -119,7 +119,6 @@ ipcMain.on("openLoginMS", (event) => {
       event.sender.send("statusLoginMS", "Success");
     })
     .catch((err) => {
-      logger.info("err", err); // ? on gui cloased or something xD
       if (err === "error.gui.closed")
         return event.sender.send("statusLoginMS", `Przerwano logowanie`);
       event.sender.send("statusLoginMS", `Error ${JSON.stringify(err)}`);
@@ -151,6 +150,10 @@ ipcMain.on("selectedAccount", async (event, arg) => {
     `zalogowano na konto ${launchOptions.accountObjSelected.displayName}`
   );
   await AccountsManager.setLastAccount(arg);
+});
+
+ipcMain.on("removeAccount", async (event, uuid) => {
+  event.returnValue = await AccountsManager.removeAccountByUUID(uuid);
 });
 
 ipcMain.on("getLastVersions", async (event) => {

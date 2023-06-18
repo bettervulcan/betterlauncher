@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld("electron", {
   openLoginMS: () => ipcRenderer.send("openLoginMS"),
   storeLoginStatus: (status) => ipcRenderer.on("statusLoginMS", status),
   getAccounts: () => ipcRenderer.sendSync("getAccounts"),
+  removeAccount: (uuid) => ipcRenderer.sendSync("removeAccount", uuid),
   getLastVersions: () => ipcRenderer.sendSync("getLastVersions"),
   getInstalledVersions: () => ipcRenderer.sendSync("getInstalledVersions"),
   getVersionsByType: (type) => ipcRenderer.sendSync("getVersionsByType", type),
